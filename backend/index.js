@@ -2,7 +2,11 @@ const express = require('express');
 const puerto = process.env.PORT || 3000;
 const path = require('path');
 const http = require('http');
-var mensaje;
+
+const { Server } = require("socket.io");
+
+const {SerialPort} = require('serialport');
+const {ReadlineParser} = require('@serialport/parser-readline');
 
 function fechaAString(today){
     return today.getDate()+"-"+today.getMonth()+1+"-"+today.getFullYear()
@@ -19,19 +23,16 @@ async function enviarDatos(){
     }
 }
 
-const  {SerialPort}  = require('serialport'); //variable definida para el puerto serie
-const  {ReadlineParser} = require('@serialport/parser-readline');
-
 const app = express();
 const server = http.createServer(app);
-const { Server } = require("socket.io");
 const io = new Server(server);
 
-app.use(express.static(path.join(__dirname, '/public')));
-app.get('/', function(req, res){
-        res.sendFile(path.join(__dirname, 'index.html'));
-    });
-
+console.log('path: ' + __dirname);
+app.use(express.static(path.join(__dirname, '../public')));
+app.get('/', (req, res) => {
+        res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
+/*
 const port = new SerialPort({ path: 'COM8', baudRate: 115200 });
 const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
 
@@ -43,7 +44,7 @@ parser.on('data', (data) => { //Read data
         var today = new Date();
         io.sockets.emit('temp', {date: fechaAString(today), time: horaAString(today), temp:data}); //emit the datd i.e. {date, time, temp} to all the connected clients.
     }
-});
+});*/
 
 server.listen(puerto, () => {
     console.log('Servidor Iniciado en http://localhost:' + puerto);
