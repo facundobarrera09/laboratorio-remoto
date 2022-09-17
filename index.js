@@ -1,4 +1,5 @@
 const express = require('express');
+const { MySerialPort } = require('./app/mySerialPort');
 
 const app = express();
 
@@ -15,3 +16,7 @@ app.use(express.static('public'));
 app.listen(app.get('port'), () => {
     console.log('Server on port ', app.get('port'));
 });
+
+// SerialPort
+
+const port = new MySerialPort('COM4', 9600);
