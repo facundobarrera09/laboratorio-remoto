@@ -1,7 +1,7 @@
 {
-  "name": "2.chartjs",
-  "version": "1.0.0",
-  "description": "",
+  "name": "laboratorio-remoto",
+  "version": "0.0.1",
+  "description": "Laboratorio remoto UTN",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,5 +15,13 @@
     "path": "^0.12.7",
     "serialport": "^10.4.0",
     "socket.io": "^4.5.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/facundobarrera09/laboratorio-remoto.git"
+  },
+  "bugs": {
+    "url": "https://github.com/facundobarrera09/laboratorio-remoto/issues"
+  },
+  "homepage": "https://github.com/facundobarrera09/laboratorio-remoto#readme"
 }
