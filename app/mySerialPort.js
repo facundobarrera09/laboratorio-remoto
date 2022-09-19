@@ -1,5 +1,6 @@
 const { SerialPort } = require('serialport');
 const { ReadlineParser } = require('@serialport/parser-readline');
+const config = require('config');
 
 class MySerialPort {
     constructor(path, baudrate, start) {
@@ -21,6 +22,8 @@ class MySerialPort {
                 return console.log('SerialPort: ' + err);
             }
 
+            this.port.write(`connect:${config.get('SerialPort.password')}`);
+
             this.port.pipe(this.parser);
             this.parser.on('data', this.handleInfo);
 
@@ -30,6 +33,7 @@ class MySerialPort {
     }
 
     handleInfo(data) {
+        console.log(data);
         // Codigos del encabezado de la informaciòn del controlador:
         // 0 - ACK
         // 1 - Informacion de administracion
@@ -39,6 +43,7 @@ class MySerialPort {
                 // ACK
             case '1':
                 // Informacion de administracion
+                return;
             case '2':
                 //dgramSocket.write(Buffer.from(data, 1));
                 return;

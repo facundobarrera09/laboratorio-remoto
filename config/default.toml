@@ -1,3 +1,4 @@
 [SerialPort]
 port = "COM7"
 baudrate = 115200
+password = "1234"
