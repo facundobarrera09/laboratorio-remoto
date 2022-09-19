@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/facundobarrera09/laboratorio-remoto/issues"
   },
-  "homepage": "https://github.com/facundobarrera09/laboratorio-remoto#readme"
+  "homepage": "https://github.com/facundobarrera09/laboratorio-remoto#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
 }
