@@ -1,31 +1,32 @@
+#include "/home/facundo/repos/laboratorio-remoto/codigo_arduino/ArduinoJson.h"
+
 #define elementos 500
 #define MESSAGE_DELAY 3000
 
-const int pot_pin1 = 34;
-const int pin_led = 25;
-
 // Led de debug
-const int led_0 = 2;
-const int led_1 = 3;
-
-int ADC1 = 0;
+const int led_1 = 2;
+const int led_2 = 3;
+const int read_1 = A0;
 
 int tension[elementos] = {
 };
-int corriente[elementos] = {
-};
 
 // Servidor
-const String PASSWORD = "connect:1234";
+const String PASSWORD = "CONNECT:1234";
 int estado_conexion = 0; // 0 - desconectado, 1 - esperando mensaje del servidor, 2 - enviando mediciones al servidor
 String mensaje = "";
-String uno = "1";
+
+// Json Config
+const int capacity = JSON_OBJECT_SIZE(5); // Un objeto con n elementos
+StaticJsonDocument<capacity> configDoc;
+
+void setupConfig(String jsonConfig);
 
 void setup() {
   Serial.begin(115200);
-  pinMode(pin_led, OUTPUT);
-  pinMode(led_0, OUTPUT);
   pinMode(led_1, OUTPUT);
+  pinMode(led_2, OUTPUT);
+  pinMode(read_1, INPUT);
 }
 
 void loop() {  
@@ -39,29 +40,27 @@ void loop() {
     if (mensaje == PASSWORD) {
       Serial.println("0RECEIVED_CONNECTION");
       estado_conexion = 1;
-      digitalWrite(led_0, HIGH);
+      digitalWrite(led_1, HIGH);
     }
   }
 
   // Manejar estados de la conexion
   if (estado_conexion == 1){
-    while (Serial.available() < 10) { 
+    while (Serial.available() < 1) { 
       Serial.println("1AWAITING_CONFIG"); 
       delay(MESSAGE_DELAY); 
     }
     mensaje = Serial.readString();
-    delay(MESSAGE_DELAY);
     Serial.println("0RECEIVED_CONFIG");
-    uno = "1";
-    uno.concat(mensaje);
-    Serial.println(uno);
     estado_conexion = 2;
-    digitalWrite(led_1, HIGH);
+    digitalWrite(led_2, HIGH);
+    
+    setupConfig(mensaje);
   }
 
   // Enviar mediciones al servidor
   if (estado_conexion == 2) {
-    ADC1 = analogRead(pot_pin1);
+    int ADC1 = analogRead(read_1);
     Serial.print("2");
     Serial.println(ADC1);
 
@@ -70,3 +69,16 @@ void loop() {
   }
 }
 
+void setupConfig(String incommingJson) {
+  DeserializationError err = deserializeJson(configDoc, incommingJson);
+  if (err) {
+    Serial.print("1");
+    Serial.print("deserializeJson() failed with code ");
+    Serial.println(err.f_str());
+  }
+  else {
+    Serial.print("0");
+    Serial.print("RECEIVED_VALID_CONFIG - ");
+    Serial.println((boolean)configDoc["rele1"]);
+  }
+}
