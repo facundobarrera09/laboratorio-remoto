@@ -1,5 +1,5 @@
 const express = require('express');
-const { PortConnection } = require('./app/mySerialPort');
+const { PortConnection } = require('./app/PortConnection');
 const config = require('config');
 
 const app = express();
