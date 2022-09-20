@@ -1,5 +1,5 @@
 const express = require('express');
-const { MySerialPort } = require('./app/mySerialPort');
+const { PortConnection } = require('./app/mySerialPort');
 const config = require('config');
 
 const app = express();
@@ -20,4 +20,5 @@ app.listen(app.get('port'), () => {
 
 // SerialPort
 
-const port = new MySerialPort(config.get('SerialPort.port'), config.get('SerialPort.baudrate'));
+const portConnection = new PortConnection(config.get('SerialPort.port'), config.get('SerialPort.baudrate'));
+portConnection.connect();

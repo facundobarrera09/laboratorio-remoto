@@ -1,2 +1,2 @@
 node_modules
-./config/local.toml
+config/local.toml
