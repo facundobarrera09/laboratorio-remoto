@@ -8,6 +8,8 @@ class PortConnection {
         this.baudrate = baudrate;
         this.parser = new ReadlineParser({delimiter: '\n'});
         this.connected = false;
+
+        this.controllerConfig = config.get("SerialPort.config");
     }
 
     connect() {
@@ -29,7 +31,9 @@ class PortConnection {
     }
 
     handleIncommingInfo(connection, data) {
-        // console.log(data);
+        // if (data.at(0) != '2') {
+        //     console.log(data);
+        // }
 
         // Codigos del encabezado de la informaciòn del controlador:
         // 0 - ACK
@@ -43,15 +47,23 @@ class PortConnection {
                     connection.setAttemptingConnection(false);
                     console.log('SerialPort: Connection stablished');
                 }
+                if (data.search('RECEIVED_CONFIG') != -1) {
+                    console.log('SerialPort: Controller received config')
+                }
+                break;
             case '1':
                 // Informacion de administracion
                 if (data.search('AWAITING_CONNECTION') != -1) {
                     console.log('SerialPort: Attempting connection with controller');
-                    connection.port.write(`connect:${config.get('SerialPort.password')}`);
+                    connection.port.write(`CONNECT:${config.get('SerialPort.password')}`);
                 }
-                return;
+                if (data.search('AWAITING_CONFIG') != -1) {
+                    console.log('SerialPort: Sending configuration');
+                    connection.port.write(JSON.stringify(connection.getControllerConfig()));
+                }
+                break;
             case '2':
-                return;
+                break;
             default:
                 console.log('SerialPort: Undefined data header');
         }
@@ -65,6 +77,9 @@ class PortConnection {
     }
     getAttemptingConnection() {
         return this.attemptingConnection;
+    }
+    getControllerConfig() {
+        return this.controllerConfig
     }
     setConnected(connected) {
         this.connected = connected;
