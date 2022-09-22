@@ -45,8 +45,8 @@ class PortConnection {
             case '0':
                 // ACK
                 if (data.search('RECEIVED_CONNECTION') != -1) {
-                    connection.setConnected(true);
-                    connection.setAttemptingConnection(false);
+                    connection.connected = true;
+                    connection.attemptingConnection = false;
                     console.log('SerialPort: Connection stablished');
                 }
                 if (data.search('RECEIVED_CONFIG') != -1) {
@@ -76,23 +76,23 @@ class PortConnection {
         this.emitter.on(event, callback);
     }
 
-    getPort() {
+    get port() {
         return this.port;
     }
-    getConnected() {
+    get connected() {
         return this.connected;
     }
-    getAttemptingConnection() {
+    get attemptingConnection() {
         return this.attemptingConnection;
     }
-    getControllerConfig() {
+    get controllerConfig() {
         return this.controllerConfig
     }
-    setConnected(connected) {
+    set connected(connected) {
         this.connected = connected;
     }
-    setAttemptingConnection(attempting_connection) {
-        this.attemptingConnection = true;
+    set attemptingConnection(attempting_connection) {
+        this.attemptingConnection = attempting_connection;
     }
 };
 
