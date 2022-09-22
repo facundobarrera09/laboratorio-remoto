@@ -61,7 +61,7 @@ class PortConnection {
                 }
                 if (data.search('AWAITING_CONFIG') != -1) {
                     console.log('SerialPort: Sending configuration');
-                    connection.port.write(JSON.stringify(connection.getControllerConfig()));
+                    connection.port.write(JSON.stringify(connection.controllerConfig));
                 }
                 break;
             case '2':
@@ -76,23 +76,29 @@ class PortConnection {
         this.emitter.on(event, callback);
     }
 
-    get port() {
+    get getPort() {
         return this.port;
     }
-    get connected() {
+    get getConnected() {
         return this.connected;
     }
-    get attemptingConnection() {
+    get getAttemptingConnection() {
         return this.attemptingConnection;
     }
-    get controllerConfig() {
+    get getControllerConfig() {
         return this.controllerConfig
     }
-    set connected(connected) {
+    set setPort(port) {
+        this.port = port;
+    }
+    set setConnected(connected) {
         this.connected = connected;
     }
-    set attemptingConnection(attempting_connection) {
-        this.attemptingConnection = attempting_connection;
+    set setAttemptingConnection(attemptingConnection) {
+        this.attemptingConnection = attemptingConnection;
+    }
+    set setControllerConfig(controllerConfig) {
+        this.controllerConfig = controllerConfig;
     }
 };
 
