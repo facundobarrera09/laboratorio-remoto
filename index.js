@@ -1,4 +1,5 @@
 const express = require('express');
+const WebSocketServer = require('websocket').server;
 const { PortConnection } = require('./app/PortConnection');
 const config = require('config');
 
@@ -14,7 +15,7 @@ app.use(express.static('public'));
 
     // Routing
 
-app.listen(app.get('port'), () => {
+const server = app.listen(app.get('port'), () => {
     console.log('Server on port ', app.get('port'));
 });
 
@@ -22,3 +23,25 @@ app.listen(app.get('port'), () => {
 
 const portConnection = new PortConnection(config.get('SerialPort.port'), config.get('SerialPort.baudrate'));
 portConnection.connect();
+
+// WebSocket Server
+
+let connections = [];
+const webSocket = new WebSocketServer({
+    httpServer: server
+});
+
+function broadcast(message) {
+    connections.forEach(c => c.sendUTF(message));
+}
+
+webSocket.on('request', (req) => {
+    console.log('Recived connection from ?');
+    let connection = req.accept('echo-protocol', req.origin);
+    connections.push(connection);
+    console.log('Amount of connections: ' + connections.length);
+});
+
+portConnection.on('new_data', (data) => {
+    broadcast(data);
+});
