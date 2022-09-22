@@ -3,13 +3,39 @@
     <head>
         <title>Grafica ADC</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="style.css">
+        <!-- CSS only -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
     </head>
     <body>
-        <h1>Se&ntilde;al Anal&oacute;gica</h1>
-        <h4>Fecha: <span id="date"></span></h4>
-        <div class="chart-container" style="position: relative; width:75vw; margin: auto;">
+        <img class="imgLogo" src="./img/logoUtn.png" alt="logo">
+        <h1 class="text-center display-3" >CIASUR</h1>
+        <h5 class="display-5">Laboratorio Remoto</h5>
+        <!-- <h4>Fecha: <span id="date"></span></h4> -->
+        <div class="container">
+            <div class="row">
+              <div class="col">
+              </div>
+              <div class="col">
+              <img class="imagenUno" src="./img/imagen1.png" alt="vector">
+              </div>
+            </div>
+          </div>
+
+
+          <div class="chart-container" style="position: relative; width:75vw; margin: auto;">
             <canvas id="myChart"></canvas>
-        </div>
+      
+
+
+
+
+
+
+
+
+
+        
         <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
         <script>
@@ -68,21 +94,8 @@
                 chart.update(); //Update the graph.
             };
         </script>
+        <!-- JavaScript Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
     </body>
-    <style>
-        h1 {
-            text-align: center;
-            font-family: 'Lato', sans-serif;
-        }
-
-        h4 {
-            text-align: center;
-            font-family: 'Lato', sans-serif;
-        }
-
-        p {
-            text-align: center;
-            font-family: 'Lato', sans-serif;
-        }
-    </style>
+  
 </html>
