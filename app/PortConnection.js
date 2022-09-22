@@ -1,5 +1,6 @@
 const { SerialPort } = require('serialport');
 const { ReadlineParser } = require('@serialport/parser-readline');
+const { EventEmitter } = require('node:events');
 const config = require('config');
 
 class PortConnection {
@@ -9,6 +10,7 @@ class PortConnection {
         this.parser = new ReadlineParser({delimiter: '\n'});
         this.connected = false;
 
+        this.emitter = new EventEmitter();
         this.controllerConfig = config.get("SerialPort.config");
     }
 
@@ -63,10 +65,15 @@ class PortConnection {
                 }
                 break;
             case '2':
+                connection.emitter.emit('new_data', data.substring(1));
                 break;
             default:
                 console.log('SerialPort: Undefined data header');
         }
+    }
+
+    on(event, callback) {
+        this.emitter.on(event, callback);
     }
 
     getPort() {
