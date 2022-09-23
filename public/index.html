@@ -14,9 +14,26 @@
         <!-- <h4>Fecha: <span id="date"></span></h4> -->
         <div class="container">
             <div class="row">
-                <div class="col"></div>
                 <div class="col">
                     <img class="imagenUno" src="./img/imagen1.png" alt="vector">
+                </div>
+                <div class="col">
+                    <form action="#" id="config-form" name="config-form">
+                        <!-- Rounded switch -->
+                        <label for="rele1">Rele 1:</label>
+                        <label class="switch">
+                            <input type="checkbox" id="rele1" name="rele1" value="rele1">
+                            <span class="slider round"></span>
+                        </label>
+                        <br>
+                        <!-- Rounded switch -->
+                        <label for="rele2">Rele 2:</label>
+                        <label class="switch">
+                            <input type="checkbox" id="rele2" name="rele2" value="rele2">
+                            <span class="slider round"></span>
+                        </label>
+                        <button type="submit">Confirmar cambios</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -61,10 +78,21 @@
                 
             });
 
-            // socket.onmessage = (data) => {
-            //     //console.log(data.data);
-            //     document.getElementById('date').innerHTML = data.data;
-            // };
+            let form = document.getElementById('config-form');
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                let data = document.forms['config-form'];
+                let message = {};
+
+                message[data['rele1'].name] = data['rele1'].checked;
+                message[data['rele2'].name] = data['rele2'].checked;
+
+                console.log('Sending petition to server');
+                socket.emit('petition', message, (response) => {
+                    console.log('Petition on queue: number ', response);
+                });
+            });
 
             x_axis = 0;
             socket.on('meassurement data', (data) => { //As a temp data is received 
