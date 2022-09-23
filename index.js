@@ -29,8 +29,9 @@ portConnection.connect();
 const io = new Server(server);
 
 io.on('connection', (socket) => {
-    socket.on('petition', (petition) => {
-        console.log(petition);
+    socket.on('petition', (petition, callback) => {
+        console.log(petition); // derivar peticion al gestor de peticiones
+        callback(10); // retornar la posicion de la peticion en la cola
     });
 });
 
