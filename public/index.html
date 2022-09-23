@@ -10,36 +10,26 @@
     <body>
         <img class="imgLogo" src="./img/logoUtn.png" alt="logo">
         <h1 class="text-center display-3" >CIASUR</h1>
-        <h5 class="display-5">Laboratorio Remoto</h5>
+        <h5 id="prueba" class="display-5">Laboratorio Remoto</h5>
         <!-- <h4>Fecha: <span id="date"></span></h4> -->
         <div class="container">
             <div class="row">
-              <div class="col">
-              </div>
-              <div class="col">
-              <img class="imagenUno" src="./img/imagen1.png" alt="vector">
-              </div>
+                <div class="col"></div>
+                <div class="col">
+                    <img class="imagenUno" src="./img/imagen1.png" alt="vector">
+                </div>
             </div>
-          </div>
+        </div>
 
-
-          <div class="chart-container" style="position: relative; width:75vw; margin: auto;">
+        <div class="chart-container" style="position: relative; width:75vw; margin: auto;">
             <canvas id="myChart"></canvas>
-      
-
-
-
-
-
-
-
-
-
+        </div>
         
         <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+        <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
         <script>
-            let socket = new WebSocket('ws://192.168.100.10:3000', 'echo-protocol');
+            let socket = io();
 
             var ctx = document.getElementById('myChart').getContext('2d');
             var chart = new Chart(ctx, {
@@ -77,22 +67,21 @@
             // };
 
             x_axis = 0;
-            socket.onmessage = (data) => { //As a temp data is received 
-                console.log(data.data);
-                //data.data = (data.data).replace('\r', '');
+            socket.on('meassurement data', (data) => { //As a temp data is received 
+                document.getElementById('prueba').innerHTML = data;
 
-                chart.data.datasets[0].data.push(data.data); //Add temp in y-axis
-                chart.data.labels.push(x_axis);  //Add time in x-asix
-                x_axis += 1;
+                // chart.data.datasets[0].data.push(data.data); //Add temp in y-axis
+                // chart.data.labels.push(x_axis);  //Add time in x-asix
+                // x_axis += 1;
 
-                if(chart.data.labels.length >= 1000) { //If there are already 15 data points in the graph.
-                    chart.data.labels.shift(); //Remove first time data
-                    chart.data.datasets.forEach((dataset) => {
-                        dataset.data.shift(); //Remove first temp data
-                    });
-                }
-                chart.update(); //Update the graph.
-            };
+                // if(chart.data.labels.length >= 1000) { //If there are already 15 data points in the graph.
+                //     chart.data.labels.shift(); //Remove first time data
+                //     chart.data.datasets.forEach((dataset) => {
+                //         dataset.data.shift(); //Remove first temp data
+                //     });
+                // }
+                // chart.update(); //Update the graph.
+            });
         </script>
         <!-- JavaScript Bundle with Popper -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>

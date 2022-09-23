@@ -1,5 +1,5 @@
 const express = require('express');
-const WebSocketServer = require('websocket').server;
+const { Server } = require('socket.io');
 const { PortConnection } = require('./app/PortConnection');
 const config = require('config');
 
@@ -24,24 +24,16 @@ const server = app.listen(app.get('port'), () => {
 const portConnection = new PortConnection(config.get('SerialPort.port'), config.get('SerialPort.baudrate'));
 portConnection.connect();
 
-// WebSocket Server
+// Socket.io Server
 
-let connections = [];
-const webSocket = new WebSocketServer({
-    httpServer: server
-});
+const io = new Server(server);
 
-function broadcast(message) {
-    connections.forEach(c => c.sendUTF(message));
-}
-
-webSocket.on('request', (req) => {
-    console.log('Recived connection from ?');
-    let connection = req.accept('echo-protocol', req.origin);
-    connections.push(connection);
-    console.log('Amount of connections: ' + connections.length);
+io.on('connection', (socket) => {
+    socket.on('petition', (petition) => {
+        console.log(petition);
+    });
 });
 
 portConnection.on('new_data', (data) => {
-    broadcast(data);
+    io.emit('meassurement data', data)
 });
