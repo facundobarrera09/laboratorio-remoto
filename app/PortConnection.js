@@ -1,6 +1,7 @@
 const { SerialPort } = require('serialport');
 const { ReadlineParser } = require('@serialport/parser-readline');
 const { EventEmitter } = require('node:events');
+const { controllerConfig, ControllerConfig } = require('./ControllerConfig');
 const config = require('config');
 
 class PortConnection {
@@ -11,7 +12,7 @@ class PortConnection {
         this.connected = false;
 
         this.emitter = new EventEmitter();
-        this.controllerConfig = config.get("SerialPort.config");
+        this.controllerConfig = new ControllerConfig(config.get("SerialPort.config"));
     }
 
     connect() {
@@ -34,7 +35,7 @@ class PortConnection {
 
     handleIncommingInfo(connection, data) {
         // if (data.at(0) != '2') {
-        //     console.log(data);
+        //     console.log('Received data from controller: ',data);
         // }
 
         // Codigos del encabezado de la informaciòn del controlador:
@@ -61,7 +62,7 @@ class PortConnection {
                 }
                 if (data.search('AWAITING_CONFIG') != -1) {
                     console.log('SerialPort: Sending configuration');
-                    connection.port.write(JSON.stringify(connection.controllerConfig));
+                    connection.updateControllerConfig();
                 }
                 break;
             case '2':
@@ -69,6 +70,18 @@ class PortConnection {
                 break;
             default:
                 console.log('SerialPort: Undefined data header');
+        }
+    }
+
+    updateControllerConfig(newConfig) {
+        if (newConfig == undefined) newConfig = this.controllerConfig;
+
+        this.controllerConfig.updateConfig(newConfig);
+
+        //console.log('SerialPort: Updating controller config with ', JSON.stringify(this.controllerConfig));
+
+        if (this.connected) {
+            this.port.write(JSON.stringify(this.controllerConfig));
         }
     }
 
