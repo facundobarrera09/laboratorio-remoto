@@ -48,3 +48,28 @@ io.on('connection', (socket) => {
 portConnection.on('new_data', (data) => {
     io.emit('meassurement data', data)
 });
+
+//imitateData();
+async function imitateData() {
+    let i = 0;
+    let increment = true;
+
+    while (true) {
+        if (increment) {
+            i++;
+            if (i >= 20) {
+                increment = false;
+            }
+        }
+        else {
+            i--;
+            if (i <= 0) {
+                increment = true;
+            }
+        }
+
+        io.emit('meassurement data', i*i)
+        await new Promise(r => setTimeout(r, ));
+    }
+
+}

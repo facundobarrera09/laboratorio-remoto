@@ -39,44 +39,104 @@
         </div>
 
         <div class="chart-container" style="position: relative; width:75vw; margin: auto;">
-            <canvas id="myChart"></canvas>
+            <!--<canvas id="myChart"></canvas>-->
+            <div id="chart_div"></div>
         </div>
         
         <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
         <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
         <script>
             let socket = io();
 
-            var ctx = document.getElementById('myChart').getContext('2d');
-            var chart = new Chart(ctx, {
-                // The type of chart we want to create
-                type: 'line',
+            //var ctx = document.getElementById('myChart').getContext('2d');
+            //var chart = new Chart(ctx, {
+                // // The type of chart we want to create
+                // type: 'line',
 
-                // The data for our dataset
-                data: {
-                labels: [],
-                datasets: [{
-                    label: "ADC",
-                    borderColor: "#FF5733",
-                    borderWidth: 1,
-                    radius: 0,
-                    data: [],
-                }]
-                },
+                // // The data for our dataset
+                // data: {
+                // labels: [],
+                // datasets: [{
+                //     label: "ADC",
+                //     borderColor: "#FF5733",
+                //     borderWidth: 1,
+                //     radius: 0,
+                //     data: [],
+                // }]
+                // },
 
-                // Configuration options go here
-                options: {
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                            beginAtZero: true
-                            }
-                        }],
-                    },
-                }
-                
+                // // Configuration options go here
+                // options: {
+                //     scales: {
+                //         yAxes: [{
+                //             ticks: {
+                //             beginAtZero: true
+                //             }
+                //         }],
+                //     },
+                // }
+            // });
+
+            // load current chart package
+            google.charts.load("current", {
+                packages: ["corechart", "line"]
             });
+            // set callback function when api loaded
+            google.charts.setOnLoadCallback(drawChart);
+
+            function drawChart() {
+                // create data object with default value
+                let data = google.visualization.arrayToDataTable([
+                    ['Time', 'Voltaje', 'Otro'],
+                    [0, 0, 0],
+                ]);
+                // create options object with titles, colors, etc.
+                let options = {
+                    title: "Voltaje",
+                    hAxis: {
+                        textPosition: 'none',
+                    },
+                    vAxis: {
+                        title: "Usage"
+                    }
+                };
+                // draw chart on load
+                let chart = new google.visualization.LineChart(
+                    document.getElementById("chart_div")
+                );
+                chart.draw(data, options);
+
+                // data manip
+                // max amount of data rows that should be displayed
+                const maxDatas = 500;
+                let newDataArray = [];
+                let index = 0;
+
+                socket.on('meassurement data', (newData) => {
+                    newDataArray.push(parseInt(newData, 10));
+
+                    if (newDataArray.length > 100) {
+                        newDataArray.forEach(d => {
+                            data.addRow([index, d, 0]);
+                            index++;
+                        });
+                        
+                        chart.draw(data, options);
+                        console.log('drawing data');
+
+                        newDataArray = [];
+
+                        if (data.getNumberOfRows() > maxDatas) {
+                            data.removeRows(0, data.getNumberOfRows() - maxDatas);
+                        }
+                    }
+
+                });
+            }
+
+
 
             let form = document.getElementById('config-form');
             form.addEventListener('submit', (e) => {
@@ -95,9 +155,8 @@
             });
 
             x_axis = 0;
-            socket.on('meassurement data', (data) => { //As a temp data is received 
-                document.getElementById('prueba').innerHTML = data;
-
+            socket.on('meassurement data', (newData) => { //As a temp data is received 
+                document.getElementById('prueba').innerHTML = newData;
                 // chart.data.datasets[0].data.push(data.data); //Add temp in y-axis
                 // chart.data.labels.push(x_axis);  //Add time in x-asix
                 // x_axis += 1;
