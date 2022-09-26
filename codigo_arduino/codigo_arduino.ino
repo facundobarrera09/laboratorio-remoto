@@ -40,7 +40,6 @@ void loop() {
     if (mensaje == PASSWORD) {
       Serial.println("0RECEIVED_CONNECTION");
       estado_conexion = 1;
-      digitalWrite(led_1, HIGH);
     }
   }
 
@@ -53,7 +52,6 @@ void loop() {
     mensaje = Serial.readString();
     Serial.println("0RECEIVED_CONFIG");
     estado_conexion = 2;
-    digitalWrite(led_2, HIGH);
     
     setupConfig(mensaje);
   }
@@ -78,7 +76,8 @@ void setupConfig(String incommingJson) {
   }
   else {
     Serial.print("0");
-    Serial.print("RECEIVED_VALID_CONFIG - ");
-    Serial.println((boolean)configDoc["rele1"]);
+    Serial.println("RECEIVED_VALID_CONFIG");
+    digitalWrite(led_1, (boolean)configDoc["rele1"]);
+    digitalWrite(led_2, (boolean)configDoc["rele2"]);
   }
 }

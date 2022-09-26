@@ -1,7 +1,9 @@
 const express = require('express');
-const WebSocketServer = require('websocket').server;
+const { Server } = require('socket.io');
 const { PortConnection } = require('./app/PortConnection');
 const config = require('config');
+const { Petition } = require('./app/Petition');
+const { PetitionManager } = require('./app/PetitionManager');
 
 const app = express();
 
@@ -24,24 +26,50 @@ const server = app.listen(app.get('port'), () => {
 const portConnection = new PortConnection(config.get('SerialPort.port'), config.get('SerialPort.baudrate'));
 portConnection.connect();
 
-// WebSocket Server
+// PetitionManager
 
-let connections = [];
-const webSocket = new WebSocketServer({
-    httpServer: server
+const petitionManager = new PetitionManager(portConnection);
+petitionManager.start();
+
+// Socket.io Server
+
+const io = new Server(server);
+
+io.on('connection', (socket) => {
+    console.log('Received connection from ', socket.handshake.address);
+    socket.on('petition', (petition_data, callback) => {
+        console.log('New petition from ', socket.handshake.address,': ', petition_data);
+        let petition = new Petition(socket.handshake.address, petition_data);
+        petitionManager.addPetitionToQueue(petition)// derivar peticion al gestor de peticiones
+        callback(10); // retornar la posicion de la peticion en la cola
+    });
 });
 
-function broadcast(message) {
-    connections.forEach(c => c.sendUTF(message));
+// portConnection.on('new_data', (data) => {
+//     io.emit('meassurement data', data)
+// });
+
+imitateData();
+async function imitateData() {
+    let i = 0;
+    let increment = true;
+
+    while (true) {
+        if (increment) {
+            i++;
+            if (i >= 20) {
+                increment = false;
+            }
+        }
+        else {
+            i--;
+            if (i <= 0) {
+                increment = true;
+            }
+        }
+
+        io.emit('meassurement data', i*i)
+        await new Promise(r => setTimeout(r, ));
+    }
+
 }
-
-webSocket.on('request', (req) => {
-    console.log('Recived connection from ?');
-    let connection = req.accept('echo-protocol', req.origin);
-    connections.push(connection);
-    console.log('Amount of connections: ' + connections.length);
-});
-
-portConnection.on('new_data', (data) => {
-    broadcast(data);
-});
