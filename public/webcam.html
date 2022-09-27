@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam</title>
+</head>
+<body>
+    <button id="button">Emitir</button>
+    <video src="" id="video" style="width: 640px; height: 480px;" autoplay="true"></video>
+    <canvas id="preview"></canvas>
+    <div class="status"></div>
+
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
+    <script>
+        let socket = io();
+
+        let canvas = document.querySelector('#preview');
+        let context = canvas.getContext('2d');
+        let button = document.querySelector('#button');
+        let video = document.querySelector('#video');
+        
+        canvas.width = 512;
+        canvas.height = 384;
+        context.width = canvas.width;
+        context.height = canvas.height;
+
+        function publicarMensaje(msg) {
+            document.querySelector('.status').innerHTML = msg;
+        }
+
+        function loadCamara(stream) {
+            video.srcObject = stream;
+            publicarMensaje('Camara funcionando');
+        }
+
+        function errorCamara() {
+            publicarMensaje('Camara ha fallado');
+        }
+
+        function verVideo(video, context) {
+            context.drawImage(video, 0, 0, context.width, context.height);
+            socket.emit('stream', canvas.toDataURL('image/webp'));
+        }
+
+        button.addEventListener('click', () => {
+            navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msgGetUserMedia);
+        
+            if (navigator.getUserMedia) {
+                navigator.getUserMedia({video: true}, loadCamara, errorCamara);
+            }
+            
+            let intervalo = setInterval(() => {
+                verVideo(video, context);
+            }, 500);
+        });
+
+    </script>
+</body>
+</html>
