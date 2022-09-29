@@ -1,24 +1,28 @@
- h1 {
-        text-align: center;
-        font-family: 'Lato', sans-serif;
-    }
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600&display=swap');
 
-h4 {
-        text-align: center;
-        font-family: 'Lato', sans-serif;
-    }
 
-p {
-        text-align: center;
-        font-family: 'Lato', sans-serif;
-    }
+p, a, label, button {
+    font-family: 'Inter Tight', sans-serif;
+}
+
+p{
+    color: #2196F3;
+    text-decoration: underline;
+}
 
 .imagenUno{
     width: 60%;
 }
 
 .imgLogo{
-    width: 10%;
+    width: 15%;
+    margin-right: 25px;
+}
+
+.ciasurImg{
+    display: block;
+    margin: auto;
+    margin-top: 5px;
 }
 
 /* The switch - the box around the slider */

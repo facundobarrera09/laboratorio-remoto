@@ -4,41 +4,39 @@
         <title>Grafica ADC</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="style.css">
-        <!-- CSS only -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
     </head>
     <body>
-        <img class="imgLogo" src="./img/logoUtn.png" alt="logo">
-        <h1 class="text-center display-3 my-3" >CIASUR</h1>
-        <h5 class="display-5">Laboratorio Remoto</h5>
-        <!-- <h4>Fecha: <span id="date"></span></h4> -->
-        <div class="container">
-            <div class="row">
-              <div class="col">
-              <img class="imagenUno" src="./img/imagen1.png" alt="vector">
-              </div>
-              <div class="col">
-              </div>
-            </div>
-          </div>
-
-
-          <div class="chart-container" style="position: relative; width:75vw; margin: auto;">
-            <canvas id="myChart"></canvas>
-      
-        <h1 class="text-center display-3" >CIASUR</h1>
-        <h5 id="prueba" class="display-5">Laboratorio Remoto</h5>
-        <!-- <h4>Fecha: <span id="date"></span></h4> -->
+        <main>
+            <nav class="navbar navbar-expand-lg navbar-light bg-primary">
+                <div class="container-fluid">
+                    <a href="./index.html">
+                        <img  class="imgLogo" src="./img/logoUtn.png" alt="logo">
+                    </a>
+                  <div class="collapse navbar-collapse container" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                      <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="./index.html">Inicio</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="./info.html">Informacion</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </nav>
+        </main>
+        <img class="ciasurImg" src="./img/logoCiasur.png" alt="logo">
+        <p id="prueba" class="h3 mt-3 mb-4 text-center">Laboratorio Remoto</p>
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <img class="imagenUno" src="./img/imagen1.png" alt="vector">
                 </div>
                 <div class="col">
                     <form action="#" id="config-form" name="config-form">
                         <!-- Rounded switch -->
                         <label for="rele1">Rele 1:</label>
-                        <label class="switch">
+                        <label class="switch my-3">
                             <input type="checkbox" id="rele1" name="rele1" value="rele1">
                             <span class="slider round"></span>
                         </label>
@@ -49,52 +47,21 @@
                             <input type="checkbox" id="rele2" name="rele2" value="rele2">
                             <span class="slider round"></span>
                         </label>
-                        <button type="submit">Confirmar cambios</button>
                     </form>
+                    <button type="submit" class="btn btn-primary my-3">Confirmar cambios</button>
                 </div>
             </div>
         </div>
-
         <div class="chart-container" style="position: relative; width:75vw; margin: auto;">
             <!--<canvas id="myChart"></canvas>-->
             <div id="chart_div"></div>
         </div>
-        
         <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
         <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
         <script>
             let socket = io();
-
-            //var ctx = document.getElementById('myChart').getContext('2d');
-            //var chart = new Chart(ctx, {
-                // // The type of chart we want to create
-                // type: 'line',
-
-                // // The data for our dataset
-                // data: {
-                // labels: [],
-                // datasets: [{
-                //     label: "ADC",
-                //     borderColor: "#FF5733",
-                //     borderWidth: 1,
-                //     radius: 0,
-                //     data: [],
-                // }]
-                // },
-
-                // // Configuration options go here
-                // options: {
-                //     scales: {
-                //         yAxes: [{
-                //             ticks: {
-                //             beginAtZero: true
-                //             }
-                //         }],
-                //     },
-                // }
-            // });
 
             // load current chart package
             google.charts.load("current", {

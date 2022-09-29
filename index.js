@@ -69,7 +69,7 @@ io.on('connection', (socket) => {
 //     io.emit('meassurement data', data)
 // });
 
-imitateData();
+// imitateData();
 async function imitateData() {
     let i = 0;
     let increment = true;
