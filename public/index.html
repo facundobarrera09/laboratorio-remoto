@@ -30,25 +30,50 @@
         <p id="prueba" class="h3 mt-3 mb-4 text-center">Laboratorio Remoto</p>
         <div class="container">
             <div class="row">
-                <div class="col">
+                <div class="col-6" style="display: flex; justify-content: end;">
+                    <img src="" alt="" id="stream" style="width: 380px;">
                 </div>
-                <div class="col">
-                    <form action="#" id="config-form" name="config-form">
+                <div class="col-6">
+                    <form action="#" id="config-form" name="config-form" style="display: flex;">
                         <!-- Rounded switch -->
-                        <label for="rele1">Rele 1:</label>
-                        <label class="switch my-3">
-                            <input type="checkbox" id="rele1" name="rele1" value="rele1">
-                            <span class="slider round"></span>
-                        </label>
-                        <br>
+                        <div class="col-4">
+                            <label for="rele1">Rele 1:</label>
+                            <label class="switch my-2">
+                                <input type="checkbox" id="rele1" name="rele1" value="rele1">
+                                <span class="slider round"></span>
+                            </label>
+                            <br>
+                            <!-- Rounded switch -->
+                            <label for="rele2">Rele 2:</label>
+                            <label class="switch my-2">
+                                <input type="checkbox" id="rele2" name="rele2" value="rele2">
+                                <span class="slider round"></span>
+                            </label>
+                            <br>
+                            <!-- Rounded switch -->
+                            <label for="rele3">Rele 3:</label>
+                            <label class="switch my-2">
+                                <input type="checkbox" id="rele3" name="rele3" value="rele3">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="col-4">
                         <!-- Rounded switch -->
-                        <label for="rele2">Rele 2:</label>
-                        <label class="switch">
-                            <input type="checkbox" id="rele2" name="rele2" value="rele2">
-                            <span class="slider round"></span>
-                        </label>
+                            <label for="rele4">Rele 4:</label>
+                            <label class="switch my-2">
+                                <input type="checkbox" id="rele4" name="rele4" value="rele4">
+                                <span class="slider round"></span>
+                            </label>
+                            <br>
+                            <!-- Rounded switch -->
+                            <label for="rele5">Rele 5:</label>
+                            <label class="switch my-2">
+                                <input type="checkbox" id="rele5" name="rele5" value="rele5">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
                     </form>
-                    <button type="submit" class="btn btn-primary my-3">Confirmar cambios</button>
+                    <button type="submit" class="btn btn-primary my-3" id="submit-form">Confirmar cambios</button>
                 </div>
             </div>
         </div>
@@ -62,6 +87,8 @@
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
         <script>
             let socket = io();
+
+            // CHART
 
             // load current chart package
             google.charts.load("current", {
@@ -120,10 +147,15 @@
                 });
             }
 
+            let stream = document.querySelector('#stream');
+            socket.on('stream', (image) => {
+                stream.src = image;
+            });
 
+            // PETITION FORM
 
-            let form = document.getElementById('config-form');
-            form.addEventListener('submit', (e) => {
+            let submit_button = document.getElementById('submit-form');
+            submit_button.addEventListener('click', (e) => {
                 e.preventDefault();
 
                 let data = document.forms['config-form'];
@@ -131,6 +163,9 @@
 
                 message[data['rele1'].name] = data['rele1'].checked;
                 message[data['rele2'].name] = data['rele2'].checked;
+                message[data['rele3'].name] = data['rele3'].checked;
+                message[data['rele4'].name] = data['rele4'].checked;
+                message[data['rele5'].name] = data['rele5'].checked;
 
                 console.log('Sending petition to server');
                 socket.emit('petition', message, (response) => {
@@ -138,21 +173,6 @@
                 });
             });
 
-            x_axis = 0;
-            socket.on('meassurement data', (newData) => { //As a temp data is received 
-                document.getElementById('prueba').innerHTML = newData;
-                // chart.data.datasets[0].data.push(data.data); //Add temp in y-axis
-                // chart.data.labels.push(x_axis);  //Add time in x-asix
-                // x_axis += 1;
-
-                // if(chart.data.labels.length >= 1000) { //If there are already 15 data points in the graph.
-                //     chart.data.labels.shift(); //Remove first time data
-                //     chart.data.datasets.forEach((dataset) => {
-                //         dataset.data.shift(); //Remove first temp data
-                //     });
-                // }
-                // chart.update(); //Update the graph.
-            });
         </script>
         <!-- JavaScript Bundle with Popper -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
