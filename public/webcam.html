@@ -7,10 +7,15 @@
     <title>Webcam</title>
 </head>
 <body>
-    <button id="button">Emitir</button>
+    <form action="" id="form">
+        <label for="password">Password: </label>
+        <input type="password" id="password">
+        <button type="submit" id="submit">Conectar</button>
+    </form>
+    <button id="button" style="display: none;">Emitir</button>
+    <div class="status"></div>
     <video src="" id="video" style="width: 640px; height: 480px;" autoplay="true"></video>
     <canvas id="preview"></canvas>
-    <div class="status"></div>
 
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
     <script>
@@ -20,6 +25,27 @@
         let context = canvas.getContext('2d');
         let button = document.querySelector('#button');
         let video = document.querySelector('#video');
+
+        let webcamInterval;
+        let startWebcamInterval;
+        let attempt = 0;
+
+        let form = document.querySelector('#form');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            let password = document.querySelector('#password');
+            let submit = document.querySelector('#submit');
+
+            socket.emit('start stream', {password: password.value}, (connected) => {
+                console.log('Connected to the server: ', connected);
+                if (connected) { 
+                    startStream();
+                    password.disabled = true;
+                    submit.disabled = true;
+                }
+            });
+        });
         
         canvas.width = 512;
         canvas.height = 384;
@@ -33,10 +59,18 @@
         function loadCamara(stream) {
             video.srcObject = stream;
             publicarMensaje('Camara funcionando');
+            attempt = 0;
+            
+            webcamInterval = setInterval(() => {
+                verVideo(video, context);
+            }, 500);
+
+            clearInterval(startWebcamInterval);
         }
 
         function errorCamara() {
-            publicarMensaje('Camara ha fallado');
+            publicarMensaje(`Camara ha fallado, reintentando (${attempt})`);
+            clearInterval(webcamInterval);
         }
 
         function verVideo(video, context) {
@@ -44,17 +78,19 @@
             socket.emit('stream', canvas.toDataURL('image/webp'));
         }
 
-        button.addEventListener('click', () => {
-            navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msgGetUserMedia);
-        
-            if (navigator.getUserMedia) {
-                navigator.getUserMedia({video: true}, loadCamara, errorCamara);
-            }
+        function startStream() {
+            console.log('Iniciando stream');
+
+            console.log('Intentando iniciar camara');
+            startWebcamInterval = setInterval( () => {
+                ++attempt;
+                navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msgGetUserMedia);
             
-            let intervalo = setInterval(() => {
-                verVideo(video, context);
-            }, 500);
-        });
+                if (navigator.getUserMedia) {
+                    navigator.getUserMedia({video: true}, loadCamara, errorCamara);
+                }
+            }, 5000);
+        }
 
     </script>
 </body>

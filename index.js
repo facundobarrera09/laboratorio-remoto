@@ -4,7 +4,6 @@ const { PortConnection } = require('./app/PortConnection');
 const config = require('config');
 const { Petition } = require('./app/Petition');
 const { PetitionManager } = require('./app/PetitionManager');
-const { application } = require('express');
 
 const app = express();
 
@@ -52,8 +51,17 @@ io.on('connection', (socket) => {
         callback(10); // retornar la posicion de la peticion en la cola
     });
 
-    socket.on('stream', (data) => {
-        socket.broadcast.emit('stream', data);
+    socket.on('start stream', (data, callback) => {
+        if (data.password === config.get('Webcam.password')) {
+            console.log('Received webcam connection');
+            socket.on('stream', (streamData) => {
+                socket.broadcast.emit('stream', streamData);
+            });
+            callback(true);
+        }
+        else {
+            callback(false);
+        }
     });
 });
 
