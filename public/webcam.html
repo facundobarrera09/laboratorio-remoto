@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam</title>
+</head>
+<body>
+    <form action="" id="form">
+        <label for="password">Password: </label>
+        <input type="password" id="password">
+        <button type="submit" id="submit">Conectar</button>
+    </form>
+    <button id="button" style="display: none;">Emitir</button>
+    <div class="status"></div>
+    <video src="" id="video" style="width: 640px; height: 480px;" autoplay="true"></video>
+    <canvas id="preview"></canvas>
+
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
+    <script>
+        let socket = io();
+
+        let canvas = document.querySelector('#preview');
+        let context = canvas.getContext('2d');
+        let button = document.querySelector('#button');
+        let video = document.querySelector('#video');
+
+        let webcamInterval;
+        let startWebcamInterval;
+        let attempt = 0;
+
+        let form = document.querySelector('#form');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            let password = document.querySelector('#password');
+            let submit = document.querySelector('#submit');
+
+            socket.emit('start stream', {password: password.value}, (connected) => {
+                console.log('Connected to the server: ', connected);
+                if (connected) { 
+                    startStream();
+                    password.disabled = true;
+                    submit.disabled = true;
+                }
+            });
+        });
+        
+        canvas.width = 512;
+        canvas.height = 384;
+        context.width = canvas.width;
+        context.height = canvas.height;
+
+        function publicarMensaje(msg) {
+            document.querySelector('.status').innerHTML = msg;
+        }
+
+        function loadCamara(stream) {
+            video.srcObject = stream;
+            publicarMensaje('Camara funcionando');
+            attempt = 0;
+            
+            webcamInterval = setInterval(() => {
+                verVideo(video, context);
+            }, 500);
+
+            clearInterval(startWebcamInterval);
+        }
+
+        function errorCamara() {
+            publicarMensaje(`Camara ha fallado, reintentando (${attempt})`);
+            clearInterval(webcamInterval);
+        }
+
+        function verVideo(video, context) {
+            context.drawImage(video, 0, 0, context.width, context.height);
+            socket.emit('stream', canvas.toDataURL('image/webp'));
+        }
+
+        function startStream() {
+            console.log('Iniciando stream');
+
+            console.log('Intentando iniciar camara');
+            startWebcamInterval = setInterval( () => {
+                ++attempt;
+                navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msgGetUserMedia);
+            
+                if (navigator.getUserMedia) {
+                    navigator.getUserMedia({video: true}, loadCamara, errorCamara);
+                }
+            }, 5000);
+        }
+
+    </script>
+</body>
+</html>
