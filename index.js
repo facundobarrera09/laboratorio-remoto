@@ -65,9 +65,9 @@ io.on('connection', (socket) => {
     });
 });
 
-// portConnection.on('new_data', (data) => {
-//     io.emit('meassurement data', data)
-// });
+portConnection.on('new_data', (data) => {
+    io.emit('meassurement data', data)
+});
 
 // imitateData();
 async function imitateData() {

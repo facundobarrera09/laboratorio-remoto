@@ -1,15 +1,20 @@
 #include "/home/facundo/repos/laboratorio-remoto/codigo_arduino/ArduinoJson.h"
 
-#define elementos 500
+#define CANTIDAD_MUESTRAS 300
 #define MESSAGE_DELAY 3000
 
 // Led de debug
 const int led_1 = 2;
 const int led_2 = 3;
-const int read_1 = A0;
 
-int tension[elementos] = {
-};
+const boolean SIMULAR_VALORES = false;
+
+// Pines de lectura
+const int read_1 = A0;
+const int read_2 = A2;
+
+int voltaje[CANTIDAD_MUESTRAS];
+int intensidad[CANTIDAD_MUESTRAS];
 
 // Servidor
 const String PASSWORD = "CONNECT:1234";
@@ -17,22 +22,25 @@ int estado_conexion = 0; // 0 - desconectado, 1 - esperando mensaje del servidor
 String mensaje = "";
 
 // Json Config
-const int capacity = JSON_OBJECT_SIZE(5); // Un objeto con n elementos
-StaticJsonDocument<capacity> configDoc;
+const int JSON_CAPACITY = JSON_OBJECT_SIZE(7); // Un objeto con n elementos
+StaticJsonDocument<JSON_CAPACITY> configDoc;
 
 void setupConfig(String jsonConfig);
+int simularVoltaje(int x);
+int simularIntensidad(int x);
 
 void setup() {
   Serial.begin(115200);
   pinMode(led_1, OUTPUT);
   pinMode(led_2, OUTPUT);
   pinMode(read_1, INPUT);
+  pinMode(read_2, INPUT);
 }
 
 void loop() {  
   // Establecer conexion con servidor
   if (estado_conexion == 0) {
-    while (Serial.available() < 1) { 
+    while (Serial.available() < 1) {
       Serial.println("1AWAITING_CONNECTION"); 
       delay(MESSAGE_DELAY); 
     }
@@ -56,11 +64,30 @@ void loop() {
     setupConfig(mensaje);
   }
 
-  // Enviar mediciones al servidor
+  // Realizar mediciones y enviarlas al servidor
   if (estado_conexion == 2) {
-    int ADC1 = analogRead(read_1);
-    Serial.print("2");
-    Serial.println(ADC1);
+    for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
+      if (SIMULAR_VALORES) {
+        voltaje[x] = simularVoltaje(x);
+        intensidad[x] = simularIntensidad(x);
+      }
+      else {
+        voltaje[x] = analogRead(read_1);
+        intensidad[x] = analogRead(read_2);
+      }
+    }
+    
+    Serial.print("2VOLTAGE:");
+    for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
+      if (x != 0) Serial.print(",");
+      Serial.print(voltaje[x]);
+    }
+    Serial.print("INTENSITY:");
+    for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
+      if (x != 0) Serial.print(",");
+      Serial.print(intensidad[x]);
+    }
+    Serial.println("");
 
     if (Serial.available() > 0)
       estado_conexion = 1;
@@ -77,7 +104,15 @@ void setupConfig(String incommingJson) {
   else {
     Serial.print("0");
     Serial.println("RECEIVED_VALID_CONFIG");
-    digitalWrite(led_1, (boolean)configDoc["rele1"]);
-    digitalWrite(led_2, (boolean)configDoc["rele2"]);
+    digitalWrite(led_1, (boolean) configDoc["rele1"]);
+    digitalWrite(led_2, (boolean) configDoc["rele2"]);
   }
+}
+
+int simularVoltaje(int x) {
+  return 100 * sin( ((2*PI*x)/100) + (PI/2) + (analogRead(read_1)/100) );
+}
+
+int simularIntensidad(int x) {
+  return 100 * sin( (2*PI*x)/100 );
 }

@@ -100,7 +100,7 @@
             function drawChart() {
                 // create data object with default value
                 let data = google.visualization.arrayToDataTable([
-                    ['Time', 'Voltaje', 'Otro'],
+                    ['Time', 'Voltaje', 'Intensidad'],
                     [0, 0, 0],
                 ]);
                 // create options object with titles, colors, etc.
@@ -122,28 +122,20 @@
                 // data manip
                 // max amount of data rows that should be displayed
                 const maxDatas = 500;
-                let newDataArray = [];
                 let index = 0;
 
-                socket.on('meassurement data', (newData) => {
-                    newDataArray.push(parseInt(newData, 10));
-
-                    if (newDataArray.length > 100) {
-                        newDataArray.forEach(d => {
-                            data.addRow([index, d, 0]);
-                            index++;
-                        });
-                        
-                        chart.draw(data, options);
-                        console.log('drawing data');
-
-                        newDataArray = [];
-
-                        if (data.getNumberOfRows() > maxDatas) {
-                            data.removeRows(0, data.getNumberOfRows() - maxDatas);
-                        }
+                socket.on('meassurement data', (newPackage) => {
+                    for (let x = 0; x < newPackage.size; x++) {
+                        console.log(newPackage.voltage[x]);
+                        data.addRow([index, newPackage.voltage[x], newPackage.intensity[x]]);
+                        index++;
                     }
+                    
+                    chart.draw(data, options);
 
+                    if (data.getNumberOfRows() > maxDatas) {
+                        data.removeRows(0, data.getNumberOfRows() - maxDatas);
+                    }
                 });
             }
 
