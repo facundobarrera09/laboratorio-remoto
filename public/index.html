@@ -100,8 +100,8 @@
             function drawChart() {
                 // create data object with default value
                 let data = google.visualization.arrayToDataTable([
-                    ['Time', 'Voltaje', 'Intensidad'],
-                    [0, 0, 0],
+                    ['Time', 'Voltaje', 'Intensidad', 'Desfasaje'],
+                    [0, 0, 0, 0],
                 ]);
                 // create options object with titles, colors, etc.
                 let options = {
@@ -126,7 +126,7 @@
 
                 socket.on('measurement data', (newPackage) => {
                     for (let x = 0; x < newPackage.size; x++) {
-                        data.addRow([index, newPackage.voltage[x], newPackage.intensity[x]]);
+                        data.addRow([index, newPackage.voltage[x], newPackage.intensity[x], newPackage.phaseShift[x]]);
                         index++;
                     }
                     
