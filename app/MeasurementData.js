@@ -7,6 +7,8 @@ class MeasurementData {
     }
 
     calculatePhaseShift(voltage, intensity) {
+        let getFirstMax = true;
+        let max, maxPos;
         let phaseShift = [];
 
         for (let k = 0; k < voltage.length; k++) {
@@ -17,9 +19,20 @@ class MeasurementData {
             }
 
             phaseShift[k] = sum.reduce((prev, curr) => prev + curr, 0);
+            phaseShift[k] /= 20000;
+
+            if (max === undefined) {
+                max = phaseShift[k];
+                maxPos = 0;
+            }
+            
+            if (phaseShift[k] > max) {
+                max = phaseShift[k];
+                maxPos = k;
+            }
         }
 
-        return phaseShift;
+        return { phaseShift: phaseShift, max: maxPos };
     }
 
     get getSize() {

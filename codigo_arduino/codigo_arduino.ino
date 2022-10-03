@@ -1,17 +1,17 @@
-#include "/home/facundo/repos/laboratorio-remoto/codigo_arduino/ArduinoJson.h"
+#include "ArduinoJson.h"
 
-#define CANTIDAD_MUESTRAS 50
+#define CANTIDAD_MUESTRAS 500
 #define MESSAGE_DELAY 1000
 
 // Led de debug
-const int led_1 = 2;
-const int led_2 = 3;
+const int led_1 = 12;
+const int led_2 = 13;
 
 const boolean SIMULAR_VALORES = true;
 
 // Pines de lectura
-const int read_1 = A0;
-const int read_2 = A2;
+const int read_1 = 35;
+const int read_2 = 34;
 
 //int voltaje[CANTIDAD_MUESTRAS];
 //int intensidad[CANTIDAD_MUESTRAS];
@@ -23,8 +23,6 @@ String mensaje = "";
 
 // Json Config
 StaticJsonDocument<JSON_OBJECT_SIZE(7)> configDoc;
-StaticJsonDocument<JSON_ARRAY_SIZE(CANTIDAD_MUESTRAS)*2> dataDoc;
-
 
 void setupConfig(String jsonConfig);
 int simularVoltaje(int x);
@@ -56,7 +54,7 @@ void loop() {
   if (estado_conexion == 1){
     while (Serial.available() < 1) { 
       Serial.println("1AWAITING_CONFIG"); 
-      delay(MESSAGE_DELAY); 
+      delay(MESSAGE_DELAY);
     }
     mensaje = Serial.readString();
     Serial.println("0RECEIVED_CONFIG");
@@ -67,30 +65,31 @@ void loop() {
 
   // Realizar mediciones y enviarlas al servidor
   if (estado_conexion == 2) {
+    int voltaje[CANTIDAD_MUESTRAS] = {};
+    int intensidad[CANTIDAD_MUESTRAS] = {};
+    
     for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
       if (SIMULAR_VALORES) {
-        dataDoc["voltage"].add(simularVoltaje(x));
-        dataDoc["intensity"].add(simularIntensidad(x));
+        voltaje[x] = simularVoltaje(x);
+        intensidad[x] = simularIntensidad(x);
       }
       else {
-        //voltaje[x] = analogRead(read_1);
-        //intensidad[x] = analogRead(read_2);
+        voltaje[x] = analogRead(read_1);
+        intensidad[x] = analogRead(read_2);
       }
     }
     
-    Serial.print("2");
-    /*
+    Serial.print("2VOLTAGE:");
     for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
-      dataDoc["voltage"].add(voltaje[x]);
+      if (x != 0) Serial.print(',');
+      Serial.print(voltaje[x]);
     }
+    Serial.print("INTENSITY:");
     for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
-      dataDoc["intensity"].add(intensidad[x]);
+      if (x != 0) Serial.print(',');
+      Serial.print(intensidad[x]);
     }
-    */
-    serializeJson(dataDoc, Serial);
     Serial.println("");
-    
-    dataDoc.clear();
 
     if (Serial.available() > 0)
       estado_conexion = 1;
@@ -113,7 +112,7 @@ void setupConfig(String incommingJson) {
 }
 
 int simularVoltaje(int x) {
-  return 100 * sin( ((2*PI*x)/100) + (PI/2) + (analogRead(read_1)/100) );
+  return 100 * sin( ((2*PI*x)/100) + (PI*1.2) );
 }
 
 int simularIntensidad(int x) {
