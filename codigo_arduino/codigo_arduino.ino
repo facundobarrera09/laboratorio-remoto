@@ -1,20 +1,20 @@
 #include "/home/facundo/repos/laboratorio-remoto/codigo_arduino/ArduinoJson.h"
 
-#define CANTIDAD_MUESTRAS 300
-#define MESSAGE_DELAY 3000
+#define CANTIDAD_MUESTRAS 50
+#define MESSAGE_DELAY 1000
 
 // Led de debug
 const int led_1 = 2;
 const int led_2 = 3;
 
-const boolean SIMULAR_VALORES = false;
+const boolean SIMULAR_VALORES = true;
 
 // Pines de lectura
 const int read_1 = A0;
 const int read_2 = A2;
 
-int voltaje[CANTIDAD_MUESTRAS];
-int intensidad[CANTIDAD_MUESTRAS];
+//int voltaje[CANTIDAD_MUESTRAS];
+//int intensidad[CANTIDAD_MUESTRAS];
 
 // Servidor
 const String PASSWORD = "CONNECT:1234";
@@ -22,8 +22,9 @@ int estado_conexion = 0; // 0 - desconectado, 1 - esperando mensaje del servidor
 String mensaje = "";
 
 // Json Config
-const int JSON_CAPACITY = JSON_OBJECT_SIZE(7); // Un objeto con n elementos
-StaticJsonDocument<JSON_CAPACITY> configDoc;
+StaticJsonDocument<JSON_OBJECT_SIZE(7)> configDoc;
+StaticJsonDocument<JSON_ARRAY_SIZE(CANTIDAD_MUESTRAS)*2> dataDoc;
+
 
 void setupConfig(String jsonConfig);
 int simularVoltaje(int x);
@@ -68,26 +69,28 @@ void loop() {
   if (estado_conexion == 2) {
     for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
       if (SIMULAR_VALORES) {
-        voltaje[x] = simularVoltaje(x);
-        intensidad[x] = simularIntensidad(x);
+        dataDoc["voltage"].add(simularVoltaje(x));
+        dataDoc["intensity"].add(simularIntensidad(x));
       }
       else {
-        voltaje[x] = analogRead(read_1);
-        intensidad[x] = analogRead(read_2);
+        //voltaje[x] = analogRead(read_1);
+        //intensidad[x] = analogRead(read_2);
       }
     }
     
-    Serial.print("2VOLTAGE:");
+    Serial.print("2");
+    /*
     for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
-      if (x != 0) Serial.print(",");
-      Serial.print(voltaje[x]);
+      dataDoc["voltage"].add(voltaje[x]);
     }
-    Serial.print("INTENSITY:");
     for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
-      if (x != 0) Serial.print(",");
-      Serial.print(intensidad[x]);
+      dataDoc["intensity"].add(intensidad[x]);
     }
+    */
+    serializeJson(dataDoc, Serial);
     Serial.println("");
+    
+    dataDoc.clear();
 
     if (Serial.available() > 0)
       estado_conexion = 1;

@@ -4,6 +4,7 @@ const { PortConnection } = require('./app/PortConnection');
 const config = require('config');
 const { Petition } = require('./app/Petition');
 const { PetitionManager } = require('./app/PetitionManager');
+const { DataManager } = require('./app/DataManager');
 
 const app = express();
 
@@ -27,6 +28,10 @@ const server = app.listen(app.get('port'), () => {
     console.log('Server on port ', app.get('port'));
 });
 
+// DataManager
+const dataManager = new DataManager();
+dataManager.start();
+
 // SerialPort
 
 const portConnection = new PortConnection(config.get('SerialPort.port'), config.get('SerialPort.baudrate'));
@@ -40,6 +45,7 @@ petitionManager.start();
 // Socket.io Server
 
 const io = new Server(server);
+dataManager.addEmitter(io);
 
 io.on('connection', (socket) => {
     console.log('Received connection from ', socket.handshake.address);
@@ -66,7 +72,7 @@ io.on('connection', (socket) => {
 });
 
 portConnection.on('new_data', (data) => {
-    io.emit('meassurement data', data)
+    dataManager.insertData(data);
 });
 
 // imitateData();
@@ -93,3 +99,4 @@ async function imitateData() {
     }
 
 }
+

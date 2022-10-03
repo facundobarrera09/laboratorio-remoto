@@ -124,9 +124,8 @@
                 const maxDatas = 500;
                 let index = 0;
 
-                socket.on('meassurement data', (newPackage) => {
+                socket.on('measurement data', (newPackage) => {
                     for (let x = 0; x < newPackage.size; x++) {
-                        console.log(newPackage.voltage[x]);
                         data.addRow([index, newPackage.voltage[x], newPackage.intensity[x]]);
                         index++;
                     }
