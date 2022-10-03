@@ -3,5 +3,12 @@ port = "COM7"
 baudrate = 115200
 password = "1234"
 
+[SerialPort.config]
+rele1 = false
+rele2 = true
+rele3 = false
+rele4 = false
+rele5 = false
+
 [Webcam]
 password = "1234"
