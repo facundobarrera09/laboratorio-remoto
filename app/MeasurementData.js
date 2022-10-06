@@ -7,10 +7,13 @@ class MeasurementData {
     }
 
     calculatePhaseShift(voltage, intensity) {
-        let getFirstMax = true;
-        let max, maxPos;
-        let phaseShift = [];
+        let maxValues = { number: 0, max: [0, 0], maxPos: [0, 0] };
+        let phaseShift = {
+            values: [],
+            angle: 0
+        };
 
+        let increasing = false, wasIncreasing = false;
         for (let k = 0; k < voltage.length; k++) {
             let sum = [];
 
@@ -18,21 +21,28 @@ class MeasurementData {
                 sum[i] = intensity[k+i] * voltage[i];
             }
 
-            phaseShift[k] = sum.reduce((prev, curr) => prev + curr, 0);
-            phaseShift[k] /= 20000;
+            phaseShift.values[k] = sum.reduce((prev, curr) => prev + curr, 0);
+            phaseShift.values[k] /= 20000;
 
-            if (max === undefined) {
-                max = phaseShift[k];
-                maxPos = 0;
-            }
-            
-            if (phaseShift[k] > max) {
-                max = phaseShift[k];
-                maxPos = k;
+            wasIncreasing = increasing;
+            if (k != 0) increasing = (phaseShift.values[k] > phaseShift.values[k-1]) 
+
+            if (maxValues.number < 2) {
+                if (increasing && maxValues.max[maxValues.number] < phaseShift.values[k]) {
+                    maxValues.max[maxValues.number] = phaseShift.values[k];
+                    maxValues.maxPos[maxValues.number] = k;
+                }
+                if (wasIncreasing && !increasing) maxValues.number++;
             }
         }
 
-        return { phaseShift: phaseShift, max: maxPos };
+        let max1 = maxValues.maxPos[0];
+        let max2 = maxValues.maxPos[1];
+        phaseShift.angle = parseFloat(((max1/(max2-max1))*360).toFixed(2));
+        // console.log(`max1=${max1}, max2=${max2}`);
+        // console.log('angle: ', phaseShift.angle);
+
+        return phaseShift;
     }
 
     get getSize() {
