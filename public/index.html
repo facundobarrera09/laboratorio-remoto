@@ -8,10 +8,11 @@
     </head>
     <body>
         <main>
-            <nav class="navbar navbar-expand-lg navbar-light bg-primary">
+            <nav class="navbar navbar-expand-lg navbar-light bg-danger">
                 <div class="container-fluid">
                     <a href="./index.html">
                         <img  class="imgLogo" src="./img/logoUtn.png" alt="logo">
+                        <!-- <img class="imgLogo" src="./img/logoCiasur.png" alt="logoCiasur">3 -->
                     </a>
                   <div class="collapse navbar-collapse container" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
@@ -26,61 +27,75 @@
                 </div>
               </nav>
         </main>
-        <img class="ciasurImg" src="./img/logoCiasur.png" alt="logo">
-        <p id="prueba" class="h3 mt-3 mb-4 text-center">Laboratorio Remoto</p>
+        <p id="prueba" class="h3 mt-3 mb-4 text-center text-danger">Laboratorio Remoto</p>
+
         <div class="container">
             <div class="row">
-                <div class="col-6" style="display: flex; justify-content: end;">
+              <div class="col col-lg-6">
+                <div class="col-6 d-block m-auto" style="display: flex; justify-content: end;">
                     <img src="" alt="" id="stream" style="width: 380px;">
                 </div>
-                <div class="col-6">
-                    <form action="#" id="config-form" name="config-form" style="display: flex;">
-                        <!-- Rounded switch -->
-                        <div class="col-4">
-                            <label for="rele1">Rele 1:</label>
-                            <label class="switch my-2">
-                                <input type="checkbox" id="rele1" name="rele1" value="rele1">
-                                <span class="slider round"></span>
-                            </label>
-                            <br>
-                            <!-- Rounded switch -->
-                            <label for="rele2">Rele 2:</label>
-                            <label class="switch my-2">
-                                <input type="checkbox" id="rele2" name="rele2" value="rele2">
-                                <span class="slider round"></span>
-                            </label>
-                            <br>
-                            <!-- Rounded switch -->
-                            <label for="rele3">Rele 3:</label>
-                            <label class="switch my-2">
-                                <input type="checkbox" id="rele3" name="rele3" value="rele3">
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                        <div class="col-4">
-                        <!-- Rounded switch -->
-                            <label for="rele4">Rele 4:</label>
-                            <label class="switch my-2">
-                                <input type="checkbox" id="rele4" name="rele4" value="rele4">
-                                <span class="slider round"></span>
-                            </label>
-                            <br>
-                            <!-- Rounded switch -->
-                            <label for="rele5">Rele 5:</label>
-                            <label class="switch my-2">
-                                <input type="checkbox" id="rele5" name="rele5" value="rele5">
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    </form>
-                    <button type="submit" class="btn btn-primary my-3" id="submit-form">Confirmar cambios</button>
+              </div>
+              <div class="col col-lg-6">
+                <div class="chart-container d-block m-auto mt-3" style="position: relative; width:45vw;">
+                    <!--<canvas id="myChart"></canvas>-->
+                    <div id="chart_div"></div>
                 </div>
+              </div>
+              <div class="col col-lg-6">
+                <img src="./img/Ciurcuito Pag Web.png" style="width:45vw; margin-top: 10px;" alt="Circuito">
+                <!-- <form action="#" id="config-form" name="config-form" style="display: flex;"> -->
+                    <!-- Rounded switch -->
+                    <!-- <div class="col-4">
+                        <label for="rele1">Rele 1:</label>
+                        <label class="switch my-2">
+                            <input type="checkbox" id="rele1" name="rele1" value="rele1">
+                            <span class="slider round"></span>
+                        </label>
+                        <br>                            -->
+                        <!-- Rounded switch -->
+                        <!-- <label for="rele1"> Rele 2:</label>
+                        <label class="switch my-2">
+                            <input type="checkbox" id="rele1" name="rele1" value="rele1">
+                            <span class="slider round"></span>
+                        </label> -->
+                        <!-- Rounded switch -->
+                        <!-- <label for="rele1"> Rele 3:</label>
+                        <label class="switch my-2">
+                            <input type="checkbox" id="rele1" name="rele1" value="rele1">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="col-4"> -->
+                    <!-- Rounded switch -->
+                       <!-- <label for="rele1"> Rele 4:</label>
+                        <label class="switch my-2">
+                            <input type="checkbox" id="rele1" name="rele1" value="rele1">
+                            <span class="slider round"></span>
+                        </label> -->
+                        <!-- Rounded switch -->
+                        <!-- <label for="rele1"> Rele 5:</label>
+                        <label class="switch my-2">
+                            <input type="checkbox" id="rele1" name="rele1" value="rele1">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </form> -->
+                <!-- <button type="submit" class="btn btn-danger my-3" id="submit-form">Confirmar cambios</button> -->
+              </div>
+              
+              <div class="col col-lg-6">
+                
+              </div>
             </div>
-        </div>
-        <div class="chart-container" style="position: relative; width:75vw; margin: auto;">
-            <!--<canvas id="myChart"></canvas>-->
-            <div id="chart_div"></div>
-        </div>
+          </div>
+
+
+
+
+
+       
+        
         <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
         <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
@@ -126,7 +141,6 @@
 
                 socket.on('meassurement data', (newPackage) => {
                     for (let x = 0; x < newPackage.size; x++) {
-                        console.log(newPackage.voltage[x]);
                         data.addRow([index, newPackage.voltage[x], newPackage.intensity[x]]);
                         index++;
                     }

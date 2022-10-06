@@ -5,10 +5,6 @@ p, a, label, button {
     font-family: 'Inter Tight', sans-serif;
 }
 
-p{
-    color: #2196F3;
-    text-decoration: underline;
-}
 
 .imagenUno{
     width: 60%;
@@ -22,7 +18,12 @@ p{
 .ciasurImg{
     display: block;
     margin: auto;
-    margin-top: 5px;
+    margin-top: 25px;
+    width: 370px;
+}
+
+.imgCircuito{
+
 }
 
 /* The switch - the box around the slider */
