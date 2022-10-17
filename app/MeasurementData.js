@@ -5,7 +5,23 @@ class MeasurementData {
         this.size = (voltageArray.length > currentArray.length) ? voltageArray.length : currentArray.length;
         this.voltage = voltageArray;
         this.current = currentArray;
+        this.power = this.calculatePower(voltageArray, currentArray);
         this.phaseShift = this.calculatePhaseShift(voltageArray, currentArray);
+    }
+
+    calculatePower(voltage, current) {
+        let power = {
+            values: [],
+            efective: 0
+        };
+
+        for (let x = 0; x < voltage.length; x++) {
+            power.values[x] = (voltage[x] * current[x]) / 50;
+        }
+
+        power.efective = power.values.reduce((prev, curr) => prev + curr, 0) / power.values.length;
+
+        return power;
     }
 
     calculatePhaseShift(voltage, current) {
@@ -55,7 +71,9 @@ class MeasurementData {
         // console.log('angle: ', angle);
 
         return angle; 
-    }   
+    }
+
+
 
     // calculatePhaseShift(voltage, current) {
     //     let phaseShift;
