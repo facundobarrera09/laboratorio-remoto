@@ -70,20 +70,20 @@ class PortConnection {
             case '2':
                 let dataPackage = {};
                 let voltageArray = {};
-                let intensityArray = {};
+                let currentArray = {};
 
                 voltageArray['begin'] = 9;
-                voltageArray['end'] = data.search('INTENSITY');
+                voltageArray['end'] = data.search('CURRENT');
                 voltageArray['arrayString'] = data.substring(voltageArray.begin, voltageArray.end);
 
-                intensityArray['begin'] = data.search('INTENSITY') + 10;
-                intensityArray['end'] = data.length - 1;
-                intensityArray['arrayString'] = data.substring(intensityArray.begin, intensityArray.end);
+                currentArray['begin'] = data.search('CURRENT') + 8;
+                currentArray['end'] = data.length - 1;
+                currentArray['arrayString'] = data.substring(currentArray.begin, currentArray.end);
 
                 dataPackage['voltage'] = (voltageArray.arrayString).split(',');
                 dataPackage['voltage'] = dataPackage['voltage'].map((v) => parseInt(v, 10));
-                dataPackage['intensity'] = (intensityArray.arrayString).split(',');
-                dataPackage['intensity'] = dataPackage['intensity'].map((v) => parseInt(v, 10));
+                dataPackage['current'] = (currentArray.arrayString).split(',');
+                dataPackage['current'] = dataPackage['current'].map((v) => parseInt(v, 10));
                 dataPackage['size'] = dataPackage.voltage.length;
 
                 connection.emitter.emit('new_data', dataPackage);

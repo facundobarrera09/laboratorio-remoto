@@ -1,14 +1,14 @@
 const config = require('config');
 
 class MeasurementData {
-    constructor(voltageArray, intensityArray) {
-        this.size = (voltageArray.length > intensityArray.length) ? voltageArray.length : intensityArray.length;
+    constructor(voltageArray, currentArray) {
+        this.size = (voltageArray.length > currentArray.length) ? voltageArray.length : currentArray.length;
         this.voltage = voltageArray;
-        this.intensity = intensityArray;
-        this.phaseShift = this.calculatePhaseShift(voltageArray, intensityArray);
+        this.current = currentArray;
+        this.phaseShift = this.calculatePhaseShift(voltageArray, currentArray);
     }
 
-    calculatePhaseShift(voltage, intensity) {
+    calculatePhaseShift(voltage, current) {
         let phaseShift = {
             values: [],
             angle: undefined
@@ -18,7 +18,7 @@ class MeasurementData {
             let sum = [];
 
             for (let i = 0; i < (voltage.length-1-k); i++) {
-                sum[i] = Math.abs(intensity[k+i] - voltage[i]);
+                sum[i] = Math.abs(current[k+i] - voltage[i]);
             }
 
             phaseShift.values[k] = sum.reduce((prev, curr) => prev + curr, 0);
@@ -172,8 +172,8 @@ class MeasurementData {
     get getVoltage() {
         return this.voltage;
     }
-    get getIntensity() {
-        return this.intensity;
+    get getCurrent() {
+        return this.current;
     }
 }
 

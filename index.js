@@ -87,8 +87,8 @@ async function simulateData() {
         };
 
         for (let x = 0; x < 500; x++) {
-            data["voltage"][x] = 100 * Math.sin( (((2*Math.PI*x)+noise(0,20))/100) + (Math.PI*2.5) ); 
-            data["intensity"][x] = 100 * Math.sin( ((2*Math.PI*x)+noise(0,20))/100 );
+            data["voltage"][x] = 100 * Math.sin( (((2*Math.PI*x)+noise(0,50))/100) + (Math.PI*(1)) ); 
+            data["intensity"][x] = 100 * Math.sin( ((2*Math.PI*x)+noise(0,50))/100 );
         }
 
         dataManager.insertData(data);

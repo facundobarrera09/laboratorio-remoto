@@ -19,7 +19,7 @@ class DataManager {
     }
 
     insertData(newData) {
-        let data = new MeasurementData(newData.voltage, newData.intensity);
+        let data = new MeasurementData(newData.voltage, newData.current);
         data.phaseShift.angle = this.calculateAccumulation(data.phaseShift.values);
         this.emitter.emit('new_data', data);
     }

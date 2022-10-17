@@ -13,9 +13,6 @@ const boolean SIMULAR_VALORES = true;
 const int read_1 = 35;
 const int read_2 = 34;
 
-//int voltaje[CANTIDAD_MUESTRAS];
-//int intensidad[CANTIDAD_MUESTRAS];
-
 // Servidor
 const String PASSWORD = "CONNECT:1234";
 int estado_conexion = 0; // 0 - desconectado, 1 - esperando mensaje del servidor, 2 - enviando mediciones al servidor
@@ -26,7 +23,7 @@ StaticJsonDocument<JSON_OBJECT_SIZE(7)> configDoc;
 
 void setupConfig(String jsonConfig);
 int simularVoltaje(int x);
-int simularIntensidad(int x);
+int simularCorriente(int x);
 
 void setup() {
   Serial.begin(115200);
@@ -66,16 +63,16 @@ void loop() {
   // Realizar mediciones y enviarlas al servidor
   if (estado_conexion == 2) {
     int voltaje[CANTIDAD_MUESTRAS] = {};
-    int intensidad[CANTIDAD_MUESTRAS] = {};
+    int corriente[CANTIDAD_MUESTRAS] = {};
     
     for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
       if (SIMULAR_VALORES) {
         voltaje[x] = simularVoltaje(x);
-        intensidad[x] = simularIntensidad(x);
+        corriente[x] = simularCorriente(x);
       }
       else {
         voltaje[x] = analogRead(read_1);
-        intensidad[x] = analogRead(read_2);
+        corriente[x] = analogRead(read_2);
       }
     }
     
@@ -84,10 +81,10 @@ void loop() {
       if (x != 0) Serial.print(',');
       Serial.print(voltaje[x]);
     }
-    Serial.print("INTENSITY:");
+    Serial.print("CURRENT:");
     for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
       if (x != 0) Serial.print(',');
-      Serial.print(intensidad[x]);
+      Serial.print(corriente[x]);
     }
     Serial.println("");
 
@@ -115,6 +112,6 @@ int simularVoltaje(int x) {
   return 100 * sin( ((2*PI*x)/100) + (PI*1.2) );
 }
 
-int simularIntensidad(int x) {
+int simularCorriente(int x) {
   return 100 * sin( (2*PI*x)/100 );
 }
