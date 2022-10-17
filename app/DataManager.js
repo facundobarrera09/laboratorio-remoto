@@ -3,6 +3,8 @@ const { MeasurementData } = require('./MeasurementData');
 
 class DataManager {
     constructor() {
+        this.dataAccumulator = [];
+
         this.executingManager = false;
         this.emitters = [];
 
@@ -18,7 +20,23 @@ class DataManager {
 
     insertData(newData) {
         let data = new MeasurementData(newData.voltage, newData.intensity);
+        data.phaseShift.angle = this.calculateAccumulation(data.phaseShift.values);
         this.emitter.emit('new_data', data);
+    }
+
+    calculateAccumulation(array) {
+        this.dataAccumulator.push(array);
+        if (this.dataAccumulator.length > 10) this.dataAccumulator.shift();
+
+        let accumulation = this.dataAccumulator[0];
+
+        for (let x = 1; x < this.dataAccumulator.length; x++) {
+            for (let y = 0; y < this.dataAccumulator[0].length; y++) {
+                accumulation[y] += this.dataAccumulator[x][y];
+            }
+        }
+
+        return MeasurementData.calculateAngle(accumulation);        
     }
 
     addEmitter(emitter) {
