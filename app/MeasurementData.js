@@ -8,71 +8,81 @@ class MeasurementData {
         this.phaseShift = this.calculatePhaseShift(voltageArray, intensityArray);
     }
 
-    // calculatePhaseShift(voltage, intensity) {
-    //     let maxValues = { number: 0, max: [0, 0], maxPos: [0, 0] };
-    //     let phaseShift = {
-    //         values: [],
-    //         angle: 0
-    //     };
+    calculatePhaseShift(voltage, intensity) {
+        let phaseShift = {
+            values: [],
+            angle: undefined
+        };
 
-    //     let increasing = false, wasIncreasing = false;
-    //     for (let k = 0; k < voltage.length; k++) {
-    //         let sum = [];
+        for (let k = 0; k < voltage.length; k++) {
+            let sum = [];
 
-    //         for (let i = 0; i < (voltage.length-1-k); i++) {
-    //             sum[i] = intensity[k+i] * voltage[i];
-    //         }
+            for (let i = 0; i < (voltage.length-1-k); i++) {
+                sum[i] = Math.abs(intensity[k+i] - voltage[i]);
+            }
 
-    //         phaseShift.values[k] = sum.reduce((prev, curr) => prev + curr, 0);
-    //         phaseShift.values[k] /= 20000;
-
-    //         wasIncreasing = increasing;
-    //         if (k != 0) increasing = (phaseShift.values[k] > phaseShift.values[k-1]) 
-
-    //         if (maxValues.number < 2) {
-    //             if (increasing && maxValues.max[maxValues.number] < phaseShift.values[k]) {
-    //                 maxValues.max[maxValues.number] = phaseShift.values[k];
-    //                 maxValues.maxPos[maxValues.number] = k;
-    //             }
-    //             if (wasIncreasing && !increasing) maxValues.number++;
-    //         }
-    //     }
-
-    //     let max1 = maxValues.maxPos[0];
-    //     let max2 = maxValues.maxPos[1];
-    //     phaseShift.angle = parseFloat(((max1/(max2-max1))*360).toFixed(2));
-    //     console.log(`max1=${max1}, max2=${max2}`);
-    //     console.log('angle: ', phaseShift.angle);
-
-    //     return phaseShift;
-    // }
-
-    calculatePhaseShift(voltage, current) {
-        let phaseShift;
-
-        let voltagePeaks = this.calculatePeaks(voltage).maxPos;
-        let currentPeaks = this.calculatePeaks(current).maxPos;
-
-        let peakDistances = [];
-        let averageDistance;
-
-        for (let x = 0; x < ((voltagePeaks.length < currentPeaks.length) ? voltagePeaks.length : currentPeaks.length); x++) {
-            peakDistances[x] = voltagePeaks[x] - currentPeaks[x];
+            phaseShift.values[k] = sum.reduce((prev, curr) => prev + curr, 0);
+            phaseShift.values[k] /= 200;
         }
 
-        averageDistance = (peakDistances.reduce((prev, curr) => prev + curr, 0)) / peakDistances.length;
-
-        phaseShift = (averageDistance * 90) / 50; // convert from distance to degrees (50 positions equals 90°)
-        
-        // console.log('volt: ', voltagePeaks);
-        // console.log('curr: ',currentPeaks);
-        // console.log(peakDistances);
-        // console.log(averageDistance);
-        // console.log(phaseShift);
-        // if (averageDistance < 0) console.log(averageDistance + 180);
-        
         return phaseShift;
     }
+
+    static calculateAngle(phaseShift) {
+        let minValues = { number: 0, min: [1000000, 1000000], minPos: [0, 0] };
+        let angle;
+
+        let increasing = true, wasIncreasing = true;
+        for (let k = 0; k < phaseShift.length; k++) {
+            wasIncreasing = increasing;
+            if (k != 0) increasing = (phaseShift[k] > phaseShift[k-1]) 
+
+            if (minValues.number < 2) {
+                if (!increasing && minValues.min[minValues.number] > phaseShift[k]) {
+                    minValues.min[minValues.number] = phaseShift[k];
+                    minValues.minPos[minValues.number] = k;
+                }
+                if (!wasIncreasing && increasing) minValues.number++;
+            }
+        }
+
+        let min1 = minValues.minPos[0];
+        let min2 = minValues.minPos[1];
+        angle = parseFloat(((min1/(min2-min1))*360).toFixed(2));
+
+        // console.log(phaseShift);
+        // console.log(`min1=${min1}, min2=${min2}`);
+        // console.log('angle: ', angle);
+
+        return angle; 
+    }   
+
+    // calculatePhaseShift(voltage, current) {
+    //     let phaseShift;
+
+    //     let voltagePeaks = this.calculatePeaks(voltage).maxPos;
+    //     let currentPeaks = this.calculatePeaks(current).maxPos;
+
+    //     let peakDistances = [];
+    //     let averageDistance;
+
+    //     for (let x = 0; x < ((voltagePeaks.length < currentPeaks.length) ? voltagePeaks.length : currentPeaks.length); x++) {
+    //         peakDistances[x] = voltagePeaks[x] - currentPeaks[x];
+    //     }
+
+    //     averageDistance = (peakDistances.reduce((prev, curr) => prev + curr, 0)) / peakDistances.length;
+
+    //     phaseShift = (averageDistance * 90) / 50; // convert from distance to degrees (50 positions equals 90°)
+        
+    //     // console.log('volt: ', voltagePeaks);
+    //     // console.log('curr: ',currentPeaks);
+    //     // console.log(peakDistances);
+    //     // console.log(averageDistance);
+    //     // console.log(phaseShift);
+    //     // if (averageDistance < 0) console.log(averageDistance + 180);
+        
+    //     return phaseShift;
+    // }
 
     // calculatePeaks(array) {
     //     const noise = config.get('Measurements.noise');
@@ -122,39 +132,39 @@ class MeasurementData {
     //     return maxValues;
     // }
 
-    calculatePeaks(array) {
-        let maxValues = { number: 0, max: [0], maxPos: [0] };
+    // calculatePeaks(array) {
+    //     let maxValues = { number: 0, max: [0], maxPos: [0] };
 
-        let isPositive = false, wasPositive = false;
-        for (let x = 0; x < array.length; x++) {
-            wasPositive = isPositive;
-            if (array[x] > 0) {
-                isPositive = true;
-                if (array[x] > maxValues.max[maxValues.number]) {
-                    maxValues.max[maxValues.number] = array[x];
-                    maxValues.maxPos[maxValues.number] = x;
-                }
-            }
-            else {
-                isPositive = false;
-                if (wasPositive && !isPositive) {
-                    maxValues.number++;
-                    maxValues.max[maxValues.number] = 0;
-                }
-            }
-        }
+    //     let isPositive = false, wasPositive = false;
+    //     for (let x = 0; x < array.length; x++) {
+    //         wasPositive = isPositive;
+    //         if (array[x] > 0) {
+    //             isPositive = true;
+    //             if (array[x] > maxValues.max[maxValues.number]) {
+    //                 maxValues.max[maxValues.number] = array[x];
+    //                 maxValues.maxPos[maxValues.number] = x;
+    //             }
+    //         }
+    //         else {
+    //             isPositive = false;
+    //             if (wasPositive && !isPositive) {
+    //                 maxValues.number++;
+    //                 maxValues.max[maxValues.number] = 0;
+    //             }
+    //         }
+    //     }
 
-        // Remove false values
-        for (let x = 0; x < maxValues.maxPos.length; x++) {
-            if (maxValues.max[x] < 50) {
-                maxValues.max.splice(x, 1);
-                maxValues.maxPos.splice(x, 1);
-                x--;
-            }
-        }
+    //     // Remove false values
+    //     for (let x = 0; x < maxValues.maxPos.length; x++) {
+    //         if (maxValues.max[x] < 50) {
+    //             maxValues.max.splice(x, 1);
+    //             maxValues.maxPos.splice(x, 1);
+    //             x--;
+    //         }
+    //     }
 
-        return maxValues;
-    }
+    //     return maxValues;
+    // }
 
     get getSize() {
         return this.size;
