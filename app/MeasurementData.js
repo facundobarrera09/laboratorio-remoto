@@ -3,8 +3,8 @@ const config = require('config');
 class MeasurementData {
     constructor(voltageArray, currentArray) {
         this.size = (voltageArray.length > currentArray.length) ? voltageArray.length : currentArray.length;
-        this.voltage = voltageArray;
-        this.current = currentArray;
+        this.setVoltage = voltageArray;
+        this.setCurrent = currentArray;
         this.power = this.calculatePower(voltageArray, currentArray);
         this.phaseShift = this.calculatePhaseShift(voltageArray, currentArray);
     }
@@ -12,14 +12,29 @@ class MeasurementData {
     calculatePower(voltage, current) {
         let power = {
             values: [],
-            efective: 0
+            active: 0,
+            factor: 0
         };
 
+        // values
         for (let x = 0; x < voltage.length; x++) {
-            power.values[x] = (voltage[x] * current[x]) / 50;
+            power.values[x] = (voltage[x] * current[x]);
         }
 
-        power.efective = power.values.reduce((prev, curr) => prev + curr, 0) / power.values.length;
+        // active
+        power.active = power.values.reduce((prev,curr) => prev + curr, 0) / power.values.length;
+        power.active = parseFloat(power.active.toFixed(1));
+
+        power.values = power.values.map(v => v / 50); // REDUCE THE SCALE
+
+        // factor
+        power.factor = power.active / (this.voltage.rms * this.current.rms);
+        power.factor = parseFloat(power.factor.toFixed(2));
+
+        // reactive
+        power.reactive = this.voltage.rms * this.current.rms * Math.sqrt(1 - Math.pow(power.factor,2));
+
+        power.reactive = parseFloat(power.reactive.toFixed(2));
 
         return power;
     }
@@ -44,6 +59,13 @@ class MeasurementData {
         return phaseShift;
     }
 
+    calculateRMS(array) { // RMS = ROOT MEDIUM SQUARE
+        let sum = array.reduce((prev, curr) => prev + (curr*curr), 0);
+        let result = Math.sqrt(sum / array.length);
+
+        return parseFloat(result.toFixed(1));
+    }
+
     static calculateAngle(phaseShift) {
         let minValues = { number: 0, min: [1000000, 1000000], minPos: [0, 0] };
         let angle;
@@ -65,6 +87,7 @@ class MeasurementData {
         let min1 = minValues.minPos[0];
         let min2 = minValues.minPos[1];
         angle = parseFloat(((min1/(min2-min1))*360).toFixed(2));
+        if (angle >= 360) angle -= 360;
 
         // console.log(phaseShift);
         // console.log(`min1=${min1}, min2=${min2}`);
@@ -72,8 +95,6 @@ class MeasurementData {
 
         return angle; 
     }
-
-
 
     // calculatePhaseShift(voltage, current) {
     //     let phaseShift;
@@ -183,6 +204,19 @@ class MeasurementData {
 
     //     return maxValues;
     // }
+
+    set setVoltage(array) {
+        this.voltage = { 
+            values: array,
+            rms: this.calculateRMS(array)
+        }
+    }
+    set setCurrent(array) {
+        this.current = { 
+            values: array,
+            rms: this.calculateRMS(array)
+        }
+    }
 
     get getSize() {
         return this.size;
