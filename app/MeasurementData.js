@@ -45,6 +45,17 @@ class MeasurementData {
             angle: undefined
         };
 
+        // Correct wave amplitud
+        let maxVoltage = this.calculateMax(voltage), maxCurrent = this.calculateMax(current);
+        let difference = (maxVoltage > maxCurrent) ? maxVoltage / maxCurrent : maxCurrent / maxVoltage;
+
+        if (maxVoltage > maxCurrent + (maxVoltage * 0.2)) {
+            current = current.map(e => e * difference);
+        }
+        else if (maxCurrent > maxVoltage + (maxCurrent * 0.2)) {
+            voltage = voltage.map(e => e * difference);
+        }
+
         for (let k = 0; k < voltage.length; k++) {
             let sum = [];
 
@@ -94,6 +105,12 @@ class MeasurementData {
         // console.log('angle: ', angle);
 
         return angle; 
+    }
+
+    calculateMax(array) {
+        let max = 0;
+        max = array.reduce((prev, curr) => { return (prev > curr) ? prev : curr }, max);
+        return max;
     }
 
     // calculatePhaseShift(voltage, current) {
