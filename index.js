@@ -69,27 +69,24 @@ portConnection.on('new_data', (data) => {
     io.emit('meassurement data', data)
 });
 
-// imitateData();
+imitateData();
 async function imitateData() {
     let i = 0;
     let increment = true;
 
     while (true) {
-        if (increment) {
-            i++;
-            if (i >= 20) {
-                increment = false;
-            }
-        }
-        else {
-            i--;
-            if (i <= 0) {
-                increment = true;
-            }
+        let data = {
+            voltage: [],
+            intensity: []
         }
 
-        io.emit('meassurement data', i*i)
-        await new Promise(r => setTimeout(r, ));
+        for (let x = 0; x < 500; x++) {
+            data["voltage"][x] = 100 * Math.sin( ((2*Math.PI*x)/100) + (Math.PI*0.5) );
+            data["intensity"][x] = 100 * Math.sin( ((2*Math.PI*x)/100) );
+        }
+
+        io.emit('meassurement data', data)
+        await new Promise(r => setTimeout(r, 200));
     }
 
 }

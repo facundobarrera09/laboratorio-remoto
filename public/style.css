@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600&display=swap');
 
 
-p, a, label, button {
+a, label, button {
     font-family: 'Inter Tight', sans-serif;
 }
 
@@ -23,8 +23,107 @@ p, a, label, button {
 }
 
 .imgCircuito{
-
+  width:45vw;
+  margin-top: 10px;
+  margin-left: -90px;
 }
+
+/* .bola {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: #dbb004;
+  animation: crazy 4s infinite linear;
+} */
+
+@keyframes crazy {
+  0%   {transform: translateX(0); background: white;}
+  25%  {transform: translatey(200px); background: red;}
+  50%  {transform: translateX(100px); background: blue;}
+  75%  {transform: translateY(200px); background: black;}
+  100% {transform: translateX(0); background: white;}
+}
+
+/* Plano cartesiano e marcações */
+.cartesiano {
+  width: 300px;
+  height: 300px;
+  border-left: 4px solid #616161;
+  border-top: 4px solid #616161;
+  position: relative;
+  margin: 30px 0 0 50px;
+  background-color:#ccc;
+  background-image: linear-gradient(white 2px, transparent 2px),
+  linear-gradient(90deg, white 2px, transparent 2px),
+  linear-gradient(rgba(255,255,255,.3) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(255,255,255,.3) 1px, transparent 1px);
+  background-size:100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  background-position:-2px -2px, -2px -2px, -1px -1px, -1px -1px;
+  color: #616161;
+}
+
+.cartesiano:before {
+  content:"Y";
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+}
+
+.cartesiano:after {
+  content:"X";
+  position: absolute;
+  top: 2px;
+  right: 7px;
+}
+
+.xy0 {
+  position: absolute;
+  left: -20px;
+  top: -20px;
+}
+
+.y100px {
+  position: absolute;
+  left: -50px;
+  top: 95px;
+}
+
+.y200px {
+  position: absolute;
+  left: -50px;
+  top: 195px;
+}
+
+.y300px {
+  position: absolute;
+  left: -50px;
+  top: 295px;
+}
+
+.x100px {
+  position: absolute;
+  top: -25px;
+  left: 80px;
+}
+
+.x100px {
+  position: absolute;
+  top: -25px;
+  left: 80px;
+}
+
+.x200px {
+  position: absolute;
+  top: -25px;
+  left: 180px;
+}
+
+.x300px {
+  position: absolute;
+  top: -25px;
+  left: 280px;
+}
+
 
 /* The switch - the box around the slider */
 .switch {
