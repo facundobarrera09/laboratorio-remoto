@@ -4,6 +4,7 @@ const { PortConnection } = require('./app/PortConnection');
 const config = require('config');
 const { Petition } = require('./app/Petition');
 const { PetitionManager } = require('./app/PetitionManager');
+const { DataManager } = require('./app/DataManager');
 
 const app = express();
 
@@ -27,6 +28,10 @@ const server = app.listen(app.get('port'), () => {
     console.log('Server on port ', app.get('port'));
 });
 
+// DataManager
+const dataManager = new DataManager();
+dataManager.start();
+
 // SerialPort
 
 const portConnection = new PortConnection(config.get('SerialPort.port'), config.get('SerialPort.baudrate'));
@@ -40,6 +45,7 @@ petitionManager.start();
 // Socket.io Server
 
 const io = new Server(server);
+dataManager.addEmitter(io);
 
 io.on('connection', (socket) => {
     console.log('Received connection from ', socket.handshake.address);
@@ -66,27 +72,31 @@ io.on('connection', (socket) => {
 });
 
 portConnection.on('new_data', (data) => {
-    io.emit('meassurement data', data)
+    dataManager.insertData(data);
 });
 
-imitateData();
-async function imitateData() {
+simulateData();
+async function simulateData() {
     let i = 0;
     let increment = true;
 
     while (true) {
         let data = {
             voltage: [],
-            intensity: []
-        }
+            current: []
+        };
 
         for (let x = 0; x < 500; x++) {
-            data["voltage"][x] = 100 * Math.sin( ((2*Math.PI*x)/100) + (Math.PI*0.5) );
-            data["intensity"][x] = 100 * Math.sin( ((2*Math.PI*x)/100) );
+            data["voltage"][x] = 100 * Math.sin( (((2*Math.PI*x)+noise(0,50))/100) + (Math.PI*(1)) ); 
+            data["current"][x] = 100 * Math.sin( ((2*Math.PI*x)+noise(0,50))/100 );
         }
 
-        io.emit('meassurement data', data)
+        dataManager.insertData(data);
         await new Promise(r => setTimeout(r, 200));
     }
 
+}
+
+function noise(min, max) {
+    return Math.random() * (max - min) + min;
 }

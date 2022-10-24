@@ -105,7 +105,11 @@
             function drawChart() {
                 // create data object with default value
                 let data = google.visualization.arrayToDataTable([
+<<<<<<< HEAD
                     ['Time', 'Voltaje', 'Corriente', 'Potencia'],
+=======
+                    ['Time', 'Voltaje', 'Intensidad', 'Desfasaje'],
+>>>>>>> modulo-datos
                     [0, 0, 0, 0],
                 ]);
                 for (let x = 1; x < 500; x++) {
@@ -146,12 +150,17 @@
 
                 socket.on('measurement data', (newPackage) => {
                     for (let x = 0; x < newPackage.size; x++) {
+<<<<<<< HEAD
                         //data.addRow([index, newPackage.voltage.values[x], newPackage.current.values[x], newPackage.power.values[x]]);
                         //index++;
 
                         data.setCell(x, 1, newPackage.voltage.values[x]);
                         data.setCell(x, 2, newPackage.current.values[x]);
                         data.setCell(x, 3, newPackage.power.values[x]);
+=======
+                        data.addRow([index, newPackage.voltage[x], newPackage.intensity[x], newPackage.phaseShift[x]]);
+                        index++;
+>>>>>>> modulo-datos
                     }
                     
                     chart.draw(data, options);

@@ -1,20 +1,17 @@
-#include "/home/facundo/repos/laboratorio-remoto/codigo_arduino/ArduinoJson.h"
+#include "ArduinoJson.h"
 
-#define CANTIDAD_MUESTRAS 300
-#define MESSAGE_DELAY 3000
+#define CANTIDAD_MUESTRAS 500
+#define MESSAGE_DELAY 1000
 
 // Led de debug
-const int led_1 = 2;
-const int led_2 = 3;
+const int led_1 = 12;
+const int led_2 = 13;
 
-const boolean SIMULAR_VALORES = false;
+const boolean SIMULAR_VALORES = true;
 
 // Pines de lectura
-const int read_1 = A0;
-const int read_2 = A2;
-
-int voltaje[CANTIDAD_MUESTRAS];
-int intensidad[CANTIDAD_MUESTRAS];
+const int read_1 = 35;
+const int read_2 = 34;
 
 // Servidor
 const String PASSWORD = "CONNECT:1234";
@@ -22,12 +19,11 @@ int estado_conexion = 0; // 0 - desconectado, 1 - esperando mensaje del servidor
 String mensaje = "";
 
 // Json Config
-const int JSON_CAPACITY = JSON_OBJECT_SIZE(7); // Un objeto con n elementos
-StaticJsonDocument<JSON_CAPACITY> configDoc;
+StaticJsonDocument<JSON_OBJECT_SIZE(7)> configDoc;
 
 void setupConfig(String jsonConfig);
 int simularVoltaje(int x);
-int simularIntensidad(int x);
+int simularCorriente(int x);
 
 void setup() {
   Serial.begin(115200);
@@ -55,7 +51,7 @@ void loop() {
   if (estado_conexion == 1){
     while (Serial.available() < 1) { 
       Serial.println("1AWAITING_CONFIG"); 
-      delay(MESSAGE_DELAY); 
+      delay(MESSAGE_DELAY);
     }
     mensaje = Serial.readString();
     Serial.println("0RECEIVED_CONFIG");
@@ -66,26 +62,29 @@ void loop() {
 
   // Realizar mediciones y enviarlas al servidor
   if (estado_conexion == 2) {
+    int voltaje[CANTIDAD_MUESTRAS] = {};
+    int corriente[CANTIDAD_MUESTRAS] = {};
+    
     for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
       if (SIMULAR_VALORES) {
         voltaje[x] = simularVoltaje(x);
-        intensidad[x] = simularIntensidad(x);
+        corriente[x] = simularCorriente(x);
       }
       else {
         voltaje[x] = analogRead(read_1);
-        intensidad[x] = analogRead(read_2);
+        corriente[x] = analogRead(read_2);
       }
     }
     
     Serial.print("2VOLTAGE:");
     for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
-      if (x != 0) Serial.print(",");
+      if (x != 0) Serial.print(',');
       Serial.print(voltaje[x]);
     }
-    Serial.print("INTENSITY:");
+    Serial.print("CURRENT:");
     for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
-      if (x != 0) Serial.print(",");
-      Serial.print(intensidad[x]);
+      if (x != 0) Serial.print(',');
+      Serial.print(corriente[x]);
     }
     Serial.println("");
 
@@ -110,9 +109,9 @@ void setupConfig(String incommingJson) {
 }
 
 int simularVoltaje(int x) {
-  return 100 * sin( ((2*PI*x)/100) + (PI/2) + (analogRead(read_1)/100) );
+  return 100 * sin( ((2*PI*x)/100) + (PI*1.2) );
 }
 
-int simularIntensidad(int x) {
+int simularCorriente(int x) {
   return 100 * sin( (2*PI*x)/100 );
 }
