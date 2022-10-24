@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="style.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
     </head>
     <body>
         <main>
@@ -65,18 +66,8 @@
             </div>
 
             <div class="col col-lg-6">
-            <div class="webchart-drawing-layer" style="width: 100%; height: 100%; padding: 0px; position: relative;"><canvas class="flot-base" width="254" height="220" style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 254px; height: 220px;"></canvas></div>
+                
             </div>
-             
-              <!-- <div class="col col-lg-6">
-                <div class="col-4">
-                    <div class="cartesiano">
-                        </ni-cartesian-graph>
-                        <i class="fa-solid fa-arrow-right"></i>
-                        <i class="fa-solid fa-arrow-up-right"></i>
-                    </div>
-                </div> 
-            </div> -->
          </div>
         </div>
 
@@ -105,11 +96,7 @@
             function drawChart() {
                 // create data object with default value
                 let data = google.visualization.arrayToDataTable([
-<<<<<<< HEAD
                     ['Time', 'Voltaje', 'Corriente', 'Potencia'],
-=======
-                    ['Time', 'Voltaje', 'Intensidad', 'Desfasaje'],
->>>>>>> modulo-datos
                     [0, 0, 0, 0],
                 ]);
                 for (let x = 1; x < 500; x++) {
@@ -150,17 +137,12 @@
 
                 socket.on('measurement data', (newPackage) => {
                     for (let x = 0; x < newPackage.size; x++) {
-<<<<<<< HEAD
                         //data.addRow([index, newPackage.voltage.values[x], newPackage.current.values[x], newPackage.power.values[x]]);
                         //index++;
 
                         data.setCell(x, 1, newPackage.voltage.values[x]);
                         data.setCell(x, 2, newPackage.current.values[x]);
                         data.setCell(x, 3, newPackage.power.values[x]);
-=======
-                        data.addRow([index, newPackage.voltage[x], newPackage.intensity[x], newPackage.phaseShift[x]]);
-                        index++;
->>>>>>> modulo-datos
                     }
                     
                     chart.draw(data, options);
@@ -203,6 +185,7 @@
                 });
             });
 
+          
         </script>
         <!-- JavaScript Bundle with Popper -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
