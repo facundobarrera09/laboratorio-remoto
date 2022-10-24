@@ -105,17 +105,32 @@
             function drawChart() {
                 // create data object with default value
                 let data = google.visualization.arrayToDataTable([
-                    ['Time', 'Voltaje', 'Intensidad'],
-                    [0, 0, 0],
+                    ['Time', 'Voltaje', 'Corriente', 'Potencia'],
+                    [0, 0, 0, 0],
                 ]);
+                for (let x = 1; x < 500; x++) {
+                    data.addRow([x, 0, 0, 0]);
+                }
+
                 // create options object with titles, colors, etc.
                 let options = {
-                    title: "Voltaje",
-                    hAxis: {
-                        textPosition: 'none',
+                    height: '100%',    // ensure fills height of container
+                    width: '100%',     // fills width of container
+
+                    hAxis: {maxValue: 500},
+
+                    chartArea: {
+                        right: 100
                     },
-                    vAxis: {
-                        title: "Usage"
+                    vAxes: {
+                        0: {title: 'Voltaje', textPosition: 'out'},
+                        1: {title: 'Corriente', textPosition: 'in'},
+                        2: {title: 'Potencia', textPosition: 'out'}
+                    },
+                    series:{
+                        0: {targetAxisIndex:0, color : 'blue'},
+                        1: {targetAxisIndex:1, color : 'red'},
+                        2: {targetAxisIndex:2, color : 'green'}
                     }
                 };
                 // draw chart on load
@@ -129,17 +144,27 @@
                 const maxDatas = 500;
                 let index = 0;
 
-                socket.on('meassurement data', (newPackage) => {
+                socket.on('measurement data', (newPackage) => {
                     for (let x = 0; x < newPackage.size; x++) {
-                        data.addRow([index, newPackage.voltage[x], newPackage.intensity[x]]);
-                        index++;
+                        //data.addRow([index, newPackage.voltage.values[x], newPackage.current.values[x], newPackage.power.values[x]]);
+                        //index++;
+
+                        data.setCell(x, 1, newPackage.voltage.values[x]);
+                        data.setCell(x, 2, newPackage.current.values[x]);
+                        data.setCell(x, 3, newPackage.power.values[x]);
                     }
                     
                     chart.draw(data, options);
+                    // document.querySelector('#angle').innerHTML = 'Desfasaje: ' + newPackage.phaseShift.angle + 'º';
+                    // document.querySelector('#efective-power').innerHTML = 'Potencia activa: ' + newPackage.power.active + ' watt';
+                    // document.querySelector('#reactive-power').innerHTML = 'Potencia reactiva: ' + newPackage.power.reactive + ' VA';
+                    // document.querySelector('#power-factor').innerHTML = 'Factor de potencia: ' + newPackage.power.factor + ' ';
+                    // document.querySelector('#efective-voltage').innerHTML = 'Voltaje RMS: ' + newPackage.voltage.rms + ' volt';
+                    // document.querySelector('#efective-current').innerHTML = 'Corriente RMS: ' + newPackage.current.rms + ' amper';
 
-                    if (data.getNumberOfRows() > maxDatas) {
-                        data.removeRows(0, data.getNumberOfRows() - maxDatas);
-                    }
+                    // if (data.getNumberOfRows() > maxDatas) {
+                    //     data.removeRows(0, data.getNumberOfRows() - maxDatas);
+                    // }
                 });
             }
 
