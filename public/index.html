@@ -8,31 +8,26 @@
     </head>
     <body>
         <main>
-            <nav class="navbar navbar-expand-lg navbar-light bg-danger">
+            <nav class="navbar navbar-expand-lg navbar-light bg-primary">
                 <div class="container-fluid">
                     <a href="./index.html">
                         <img  class="imgLogo" src="./img/logoUtn.png" alt="logo">
-                        <!-- <img class="imgLogo" src="./img/logoCiasur.png" alt="logoCiasur">3 -->
                     </a>
                   <div class="collapse navbar-collapse container" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                       <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="./index.html">Inicio</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="./info.html">Informacion</a>
+                        <a class="nav-link active" aria-current="page" href="./index.html">Laboratorio Remoto</a>
                       </li>
                     </ul>
                   </div>
                 </div>
               </nav>
         </main>
-        <!-- <p id="prueba" class="h3 mt-3 mb-4 text-center text-danger">Laboratorio Remoto</p> -->
 
         <div class="container">
             <div class="row">
               <div class="col col-lg-6">
-                <div class="col-6 d-block m-auto" style="display: flex; justify-content: end;">
+                <div class="col-6 d-block m-auto" style="display: flex; justify-content: end; position: relative;right: 100px;">
                     <img src="" alt="" id="stream" style="width: 380px;">
                 </div>
               </div>
@@ -43,50 +38,47 @@
                 </div>
               </div>
               <div class="col col-lg-6">
+                  <!-- <button type="submit" class="btn btn-primary my-3 btn-sm" id="submit-form">Confirmar</button> -->
                 <img src="./img/Ciurcuito Pag Web.png" class="imgCircuito" alt="Circuito">
                  <form action="#" id="config-form" name="config-form" style="display: flex;">    
                     <div class="form-check form-switch mb-3">
-                        <input class="form-check-input"  name="rele1" value="rele1" type="checkbox" id="rele1 flexSwitchCheckChecked" checked>
-                        <label class="form-check-label" for="flexSwitchCheckChecked">Rele 1:</label>
+                        <input class="form-check-input rele-1"  name="rele1" value="rele1" type="checkbox" id="rele1 flexSwitchCheckChecked" checked>
+                        <!-- <label class="form-check-label" for="flexSwitchCheckChecked">Rele 1:</label> -->
                     </div>
                     <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" name="rele1" value="rele1" type="checkbox" id="rele1 flexSwitchCheckChecked" checked>
-                        <label class="form-check-label" for="flexSwitchCheckChecked">Rele 2:</label>
+                        <input class="form-check-input rele-2" name="rele1" value="rele1" type="checkbox" id="rele1 flexSwitchCheckChecked" checked>
+                        <!-- <label class="form-check-label" for="flexSwitchCheckChecked">Rele 2:</label> -->
                     </div>
                     <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" name="rele1" value="rele1" type="checkbox" id="rele1 flexSwitchCheckChecked" checked>
-                        <label class="form-check-label" for="flexSwitchCheckChecked">Rele 3:</label>
+                        <input class="form-check-input rele-3" name="rele1" value="rele1" type="checkbox" id="rele1 flexSwitchCheckChecked" checked>
+                        <!-- <label class="form-check-label" for="flexSwitchCheckChecked">Rele 3:</label> -->
                     </div>
                     <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" name="rele1" value="rele1" type="checkbox" id="rele1 flexSwitchCheckChecked" checked>
-                        <label class="form-check-label" for="flexSwitchCheckChecked">Rele 4:</label>
+                        <input class="form-check-input rele-4" name="rele1" value="rele1" type="checkbox" id="rele1 flexSwitchCheckChecked" checked>
+                        <!-- <label class="form-check-label" for="flexSwitchCheckChecked">Rele 4:</label> -->
                     </div>
                     <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" name="rele1" value="rele1" type="checkbox" id="rele1 flexSwitchCheckChecked" checked>
-                        <label class="form-check-label" for="flexSwitchCheckChecked">Rele 5:</label>
+                        <input class="form-check-input rele-5" name="rele1" value="rele1" type="checkbox" id="rele1 flexSwitchCheckChecked" checked>
+                        <!-- <label class="form-check-label" for="flexSwitchCheckChecked">Rele 5:</label> -->
                     </div>
-                    <button type="submit" class="btn btn-danger my-3" id="submit-form">Confirmar</button>
                 </form> 
             </div>
-              
-             <div class="col col-lg-6">
+
+            <div class="col col-lg-6">
+            <div class="webchart-drawing-layer" style="width: 100%; height: 100%; padding: 0px; position: relative;"><canvas class="flot-base" width="254" height="220" style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 254px; height: 220px;"></canvas></div>
+            </div>
+             
+              <!-- <div class="col col-lg-6">
                 <div class="col-4">
                     <div class="cartesiano">
-                        
-                        <!-- marcações -->
+                        </ni-cartesian-graph>
                         <i class="fa-solid fa-arrow-right"></i>
-                        <div class="xy0"></div>
-                        <div class="y300px"></div>
-                        <div class="y200px"></div>
-                        <div class="y100px"></div>
-                        <div class="x100px"></div>
-                        <div class="x200px"></div>
-                        <div class="x300px"></div>
-                      </div>
-                </div>
-              </div>
-            </div>
-          </div>
+                        <i class="fa-solid fa-arrow-up-right"></i>
+                    </div>
+                </div> 
+            </div> -->
+         </div>
+        </div>
 
 
 

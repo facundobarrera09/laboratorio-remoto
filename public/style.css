@@ -28,13 +28,6 @@ a, label, button {
   margin-left: -90px;
 }
 
-/* .bola {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: #dbb004;
-  animation: crazy 4s infinite linear;
-} */
 
 @keyframes crazy {
   0%   {transform: translateX(0); background: white;}
@@ -46,12 +39,11 @@ a, label, button {
 
 /* Plano cartesiano e marcações */
 .cartesiano {
-  width: 300px;
-  height: 300px;
+  width: 200px;
+  height: 200px;
+  margin-left: 200px;
   border-left: 4px solid #616161;
   border-top: 4px solid #616161;
-  position: relative;
-  margin: 30px 0 0 50px;
   background-color:#ccc;
   background-image: linear-gradient(white 2px, transparent 2px),
   linear-gradient(90deg, white 2px, transparent 2px),
@@ -61,27 +53,6 @@ a, label, button {
   background-position:-2px -2px, -2px -2px, -1px -1px, -1px -1px;
   color: #616161;
 }
-
-.cartesiano:before {
-  content:"Y";
-  position: absolute;
-  bottom: 5px;
-  left: 5px;
-}
-
-.cartesiano:after {
-  content:"X";
-  position: absolute;
-  top: 2px;
-  right: 7px;
-}
-
-.xy0 {
-  position: absolute;
-  left: -20px;
-  top: -20px;
-}
-
 .y100px {
   position: absolute;
   left: -50px;
@@ -187,3 +158,33 @@ a, label, button {
   .slider.round:before {
     border-radius: 50%;
   }
+
+  .rele-1{
+    position: relative;
+    bottom: 160px;
+    right: 50px;
+  }
+
+ .rele-2{
+  position: relative;
+  bottom: 160px;
+  left: 140px;
+ }
+
+ .rele-3{
+  position: relative;
+  bottom: 160px;
+  left: 198px;
+ }
+
+ .rele-4{
+  position: relative;
+  bottom: 160px;
+  left: 262px;
+ }
+
+ .rele-5{
+  position: relative;
+  bottom: 160px;
+  left: 290px;
+ }
