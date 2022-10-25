@@ -81,8 +81,17 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
         <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
+        <script src="./jquery/jquery-3.6.1.min.js"></script>
         <script>
             let socket = io();
+
+            // EJE CARTESIANO
+
+            $.get('./img/eje_cartesiano.svg', svgText => {
+                var draw = SVG().addTo('body');
+                draw.svg(svgText, true);
+            }, 'text');
 
             // CHART
 
