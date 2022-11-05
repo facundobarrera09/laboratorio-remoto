@@ -62,13 +62,12 @@
                         <input class="form-check-input rele-5" name="rele1" value="rele1" type="checkbox" id="rele1 flexSwitchCheckChecked" checked>
                         <!-- <label class="form-check-label" for="flexSwitchCheckChecked">Rele 5:</label> -->
                     </div>
-                </form> 
-            </div>
-
-            <div class="col col-lg-6">
-                
-            </div>
-         </div>
+                </form>
+              </div>
+              <div class="col col-lg-6">
+                <div id="eje"></div>
+              </div>
+            </div> 
         </div>
 
 
@@ -88,10 +87,43 @@
 
             // EJE CARTESIANO
 
+            let voltageArrow, currentArrow;
+
             $.get('./img/eje_cartesiano.svg', svgText => {
-                var draw = SVG().addTo('body');
+                var draw = SVG().addTo('#eje');
                 draw.svg(svgText, true);
+                voltageArrow = document.querySelector('#voltage-arrow');
+                currentArrow = document.querySelector('#current-arrow');
+
+                currentArrow.setAttribute('x2', '550');
             }, 'text');
+
+            socket.on('measurement data', (newPackage) => {
+                if (currentArrow !== undefined && voltageArrow !== undefined) {
+                    let angle = parseFloat(newPackage.phaseShift.angle);
+                    let current = parseFloat(newPackage.current.rms);
+                    let voltage = parseFloat(newPackage.voltage.rms);
+
+                    let scale = { 
+                        unit: 37.5, // value of units in the scale
+                        unitValue: current / 4 // value of units as a vector, current occupies 4 units
+                    }
+                
+                    let currentComponents = { x: current, y: 0 }
+                    let voltageComponents = { x: parseFloat((Math.cos((angle/180) * Math.PI)).toFixed(2)) * voltage , y: parseFloat((Math.sin((angle/180) * Math.PI)).toFixed(2)) * voltage }
+                    
+                    let voltageValues = { 
+                        x: (voltageComponents.x / scale.unitValue) * scale.unit,
+                        y: (voltageComponents.y / scale.unitValue) * scale.unit
+                    }
+
+                    console.log('voltage:', voltageComponents, voltageValues);
+                    console.log('current:', currentComponents, {x: 150, y: 0});
+
+                    voltageArrow.setAttribute('x2', voltageValues.x + parseInt(currentArrow.getAttribute('x1')));
+                    voltageArrow.setAttribute('y2', voltageValues.y + parseInt(currentArrow.getAttribute('y1')));
+                }
+            });
 
             // CHART
 
