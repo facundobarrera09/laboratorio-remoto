@@ -87,9 +87,15 @@ async function simulateData() {
         };
 
         for (let x = 0; x < 500; x++) {
-            data["voltage"][x] = 100 * Math.sin( (((2*Math.PI*x)+noise(0,50))/100) + (Math.PI*(1)) ); 
+            data["voltage"][x] = 100 * Math.sin( (((2*Math.PI*x)+noise(0,50))/100) + (Math.PI*(0)) ); 
             data["current"][x] = 100 * Math.sin( ((2*Math.PI*x)+noise(0,50))/100 );
         }
+
+        // no noise
+        // for (let x = 0; x < 500; x++) {
+        //     data["voltage"][x] = 100 * Math.sin( (((2*Math.PI*x))/100) + (Math.PI*(0.5)) ); 
+        //     data["current"][x] = 100 * Math.sin( ((2*Math.PI*x))/100 );
+        // }
 
         dataManager.insertData(data);
         await new Promise(r => setTimeout(r, 200));
