@@ -3,8 +3,8 @@ const config = require('config');
 class MeasurementData {
     constructor(voltageArray, currentArray) {
         this.size = (voltageArray.length > currentArray.length) ? voltageArray.length : currentArray.length;
-        this.setVoltage = voltageArray;
-        this.setCurrent = currentArray;
+        this.setVoltage = voltageArray.map(v => { return (((27.6*v)-47346)/2493) });
+        this.setCurrent = currentArray.map(c => { return (((1.1871/2588)*(c-352))-0.5939) });
         this.power = this.calculatePower(voltageArray, currentArray);
         this.phaseShift = this.calculatePhaseShift(voltageArray, currentArray);
     }

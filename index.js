@@ -75,7 +75,7 @@ portConnection.on('new_data', (data) => {
     dataManager.insertData(data);
 });
 
-simulateData();
+//simulateData();
 async function simulateData() {
     let i = 0;
     let increment = true;

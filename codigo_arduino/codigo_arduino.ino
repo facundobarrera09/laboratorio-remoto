@@ -7,7 +7,7 @@
 const int led_1 = 12;
 const int led_2 = 13;
 
-const boolean SIMULAR_VALORES = true;
+const boolean SIMULAR_VALORES = false;
 
 // Pines de lectura
 const int read_1 = 35;
