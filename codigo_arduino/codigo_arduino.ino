@@ -31,8 +31,11 @@ int simularCorriente(int x);
 
 void setup() {
   Serial.begin(115200);
-  pinMode(led_1, OUTPUT);
-  pinMode(led_2, OUTPUT);
+  pinMode(rele_vsin, OUTPUT);
+  pinMode(rele_r1, OUTPUT);
+  pinMode(rele_c, OUTPUT);
+  pinMode(rele_l, OUTPUT);
+  pinMode(rele_r2, OUTPUT);
   pinMode(read_1, INPUT);
   pinMode(read_2, INPUT);
 }
@@ -121,10 +124,10 @@ void setupConfig(String incommingJson) {
       delay(DELAY_RELES);
 
       // Realizar los cambios en el circuito
-      digitalWrite(rele_r1, (r1) ? HIGH : LOW;
-      digitalWrite(rele_c, (c) ? HIGH : LOW;
-      digitalWrite(rele_l, (l) ? HIGH : LOW;
-      digitalWrite(rele_r2, (r2) ? HIGH : LOW;
+      digitalWrite(rele_r1, (r1) ? HIGH : LOW);
+      digitalWrite(rele_c, (c) ? HIGH : LOW);
+      digitalWrite(rele_l, (l) ? HIGH : LOW);
+      digitalWrite(rele_r2, (r2) ? HIGH : LOW);
 
       // Esperar y encender el circuito
       delay(DELAY_RELES);
