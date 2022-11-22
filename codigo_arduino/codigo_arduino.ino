@@ -14,8 +14,8 @@ const int rele_r2 = 12;
 const boolean SIMULAR_VALORES = false;
 
 // Pines de lectura
-const int read_1 = 35;
-const int read_2 = 34;
+const int read_1 = 33; // voltage
+const int read_2 = 32; // corriente
 
 // Servidor
 const String PASSWORD = "CONNECT:1234";
