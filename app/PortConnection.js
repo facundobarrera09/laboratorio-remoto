@@ -44,6 +44,7 @@ class PortConnection {
         // 0 - ACK
         // 1 - Informacion de administracion
         // 2 - Datos de medicion
+        // 3 - Log
         switch (data.at(0)) {
             case '0':
                 // ACK
@@ -87,6 +88,11 @@ class PortConnection {
                 dataPackage['size'] = dataPackage.voltage.length;
 
                 connection.emitter.emit('new_data', dataPackage);
+                break;
+
+            case '4':
+                // Logs
+                console.log("SerialPort: Log: ", data);
                 break;
 
             default:
