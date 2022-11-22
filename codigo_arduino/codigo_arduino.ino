@@ -5,11 +5,11 @@
 #define DELAY_RELES 2000
 
 // Pines de salida
-const int rele_vsin = 22;
-const int rele_r1 = 23;
+const int rele_vsin = 23;
+const int rele_r1 = 22;
 const int rele_c = 5;
-const int rele_l = 10;
-const int rele_r2 = 12;
+const int rele_l = 4;
+const int rele_r2 = 2;
 
 const boolean SIMULAR_VALORES = false;
 
@@ -23,7 +23,7 @@ int estado_conexion = 0; // 0 - desconectado, 1 - esperando mensaje del servidor
 String mensaje = "";
 
 // Json Config
-StaticJsonDocument<JSON_OBJECT_SIZE(7)> configDoc;
+StaticJsonDocument<JSON_OBJECT_SIZE(24)> configDoc;
 
 void setupConfig(String jsonConfig);
 int simularVoltaje(int x);
@@ -117,6 +117,17 @@ void setupConfig(String incommingJson) {
     c = (boolean) configDoc["rele3"];
     l = (boolean) configDoc["rele4"];
     r2 = (boolean) configDoc["rele5"];
+
+    Serial.print("4: vsin=");
+    Serial.print(vsin);
+    Serial.print(", r1=");
+    Serial.print(r1);
+    Serial.print(", c=");
+    Serial.print(c);
+    Serial.print(", l=");
+    Serial.print(l);
+    Serial.print(", r2=");
+    Serial.println(r2);
 
     if (vsin) {
       // Desconectar el circuito y esperar
