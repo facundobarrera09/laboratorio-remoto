@@ -2,11 +2,26 @@ const config = require('config');
 
 class MeasurementData {
     constructor(voltageArray, currentArray) {
+        this.vMaxA = 3021, this.vMinA = 450; // voltage maximo y minimo de arduino
+        this.vMaxR = 13.60, this.vMinR = -13.80; // voltage maximo y minimo real
+        this.cMaxA = 3250, this.cMinA = 288; // corriente maxima y minima de arduino
+        this.cMaxR = 272, this.cMinR = -264; // corriente maxima y minima real
+
         this.size = (voltageArray.length > currentArray.length) ? voltageArray.length : currentArray.length;
-        this.setVoltage = voltageArray.map(v => { return (((27.6*v)-47346)/2493) });
-        this.setCurrent = currentArray.map(c => { return (((1.1871/2588)*(c-352))-0.5939) });
-        this.power = this.calculatePower(voltageArray, currentArray);
-        this.phaseShift = this.calculatePhaseShift(voltageArray, currentArray);
+        this.setVoltage = voltageArray.map(v => { return (this.vMinR + ((v-this.vMinA) * ((this.vMaxR - this.vMinR)/(this.vMaxA - this.vMinA)))) });
+        this.setCurrent = currentArray.map(c => { return ((this.cMinR + ((c-this.cMinA) * ((this.cMaxR - this.cMinR)/(this.cMaxA - this.cMinA)))) / 189) });
+        this.power = this.calculatePower(this.voltage.values, this.current.values);
+        this.phaseShift = this.calculatePhaseShift(this.voltage.values, this.current.values);
+
+        this.additional = {
+            originalCurrent: []
+        }
+        for (let x = 0; x < 500; x++) {
+            let values = []
+            values.push(currentArray[x]);
+            values.push(this.current.values[x]);
+            this.additional.originalCurrent.push(values);
+        }
     }
 
     calculatePower(voltage, current) {
@@ -60,19 +75,24 @@ class MeasurementData {
             let sum = [];
 
             for (let i = 0; i < (voltage.length-1-k); i++) {
-                sum[i] = Math.abs(current[k+i] - voltage[i]);
+                sum[i] = Math.abs(voltage[k+i] - current[i]);
             }
 
             phaseShift.values[k] = sum.reduce((prev, curr) => prev + curr, 0);
             phaseShift.values[k] /= 200;
+            // phaseShift.values[k] *= -1;
         }
 
         return phaseShift;
     }
 
-    calculateRMS(array) { // RMS = ROOT MEDIUM SQUARE
+    calculateRMS(array, coeficient) { // RMS = ROOT MEDIUM SQUARE
         let sum = array.reduce((prev, curr) => prev + (curr*curr), 0);
         let result = Math.sqrt(sum / array.length);
+
+        if (coeficient !== undefined) {
+            result *= coeficient;
+        }
 
         return parseFloat(result.toFixed(1));
     }
@@ -104,7 +124,7 @@ class MeasurementData {
         // console.log(`min1=${min1}, min2=${min2}`);
         // console.log('angle: ', angle);
 
-        return angle; 
+        return angle*-1; 
     }
 
     calculateMax(array) {
@@ -225,7 +245,7 @@ class MeasurementData {
     set setVoltage(array) {
         this.voltage = { 
             values: array,
-            rms: this.calculateRMS(array)
+            rms: this.calculateRMS(array) // (9.86/10.9)
         }
     }
     set setCurrent(array) {
