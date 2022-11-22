@@ -9,7 +9,7 @@ class PetitionManager {
         this.executingPetitions = false;
         this.petitionQueue = [];
         this.petitionInExecution = null;
-        this.petitionTimeout = 10000;
+        this.petitionTimeout = 5000;
 
         this.emitter = new EventEmitter();
     }
