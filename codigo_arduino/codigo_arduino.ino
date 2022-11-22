@@ -1,11 +1,15 @@
 #include "ArduinoJson.h"
 
 #define CANTIDAD_MUESTRAS 500
-#define MESSAGE_DELAY 1000
+#define MESSAGE_DELAY 500
+#define DELAY_RELES 2000
 
-// Led de debug
-const int led_1 = 12;
-const int led_2 = 13;
+// Pines de salida
+const int rele_vsin = 22;
+const int rele_r1 = 23;
+const int rele_c = 5;
+const int rele_l = 10;
+const int rele_r2 = 12;
 
 const boolean SIMULAR_VALORES = false;
 
@@ -103,8 +107,32 @@ void setupConfig(String incommingJson) {
   else {
     Serial.print("0");
     Serial.println("RECEIVED_VALID_CONFIG");
-    digitalWrite(led_1, (boolean) configDoc["rele1"]);
-    digitalWrite(led_2, (boolean) configDoc["rele2"]);
+    boolean vsin, r1, c, l, r2;
+    
+    vsin = (boolean) configDoc["rele1"];
+    r1 = (boolean) configDoc["rele2"];
+    c = (boolean) configDoc["rele3"];
+    l = (boolean) configDoc["rele4"];
+    r2 = (boolean) configDoc["rele5"];
+
+    if (vsin) {
+      // Desconectar el circuito y esperar
+      digitalWrite(rele_vsin, LOW);
+      delay(DELAY_RELES);
+
+      // Realizar los cambios en el circuito
+      digitalWrite(rele_r1, (r1) ? HIGH : LOW;
+      digitalWrite(rele_c, (c) ? HIGH : LOW;
+      digitalWrite(rele_l, (l) ? HIGH : LOW;
+      digitalWrite(rele_r2, (r2) ? HIGH : LOW;
+
+      // Esperar y encender el circuito
+      delay(DELAY_RELES);
+      digitalWrite(rele_vsin, HIGH);
+    }
+    else {
+      digitalWrite(rele_vsin, LOW);
+    }
   }
 }
 
