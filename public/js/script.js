@@ -105,9 +105,9 @@ function drawChart() {
         document.querySelector('#valores-voltaje').innerHTML = newPackage.voltage.rms + ' volt';
         document.querySelector('#valores-corriente').innerHTML = newPackage.current.rms + ' amper';
         document.querySelector('#valores-angulo').innerHTML = newPackage.phaseShift.angle + 'º';
-        document.querySelector('#valores-factor-potencia').innerHTML = newPackage.power.active + ' watt';
-        document.querySelector('#valores-potencia-activa').innerHTML = newPackage.power.reactive + ' VA';
-        document.querySelector('#valores-potencia-reactiva').innerHTML = newPackage.power.factor + ' ';
+        document.querySelector('#valores-potencia-activa').innerHTML = newPackage.power.active + ' watt';
+        document.querySelector('#valores-potencia-reactiva').innerHTML = newPackage.power.reactive + ' VA';
+        document.querySelector('#valores-factor-potencia').innerHTML = newPackage.power.factor + ' ';
 
         // if (data.getNumberOfRows() > maxDatas) {
         //     data.removeRows(0, data.getNumberOfRows() - maxDatas);
