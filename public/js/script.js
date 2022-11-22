@@ -15,7 +15,7 @@ $.get('./img/eje_cartesiano.svg', svgText => {
 
 socket.on('measurement data', (newPackage) => {
     if (currentArrow !== undefined && voltageArrow !== undefined) {
-        let angle = parseFloat(newPackage.phaseShift.angle);
+        let angle = parseFloat(newPackage.phaseShift.angle) * -1;
         let current = parseFloat(newPackage.current.rms);
         let voltage = parseFloat(newPackage.voltage.rms);
 
@@ -108,6 +108,8 @@ function drawChart() {
         document.querySelector('#valores-potencia-activa').innerHTML = newPackage.power.active + ' watt';
         document.querySelector('#valores-potencia-reactiva').innerHTML = newPackage.power.reactive + ' VA';
         document.querySelector('#valores-factor-potencia').innerHTML = newPackage.power.factor + ' ';
+
+        console.log(newPackage.additional);
 
         // if (data.getNumberOfRows() > maxDatas) {
         //     data.removeRows(0, data.getNumberOfRows() - maxDatas);
