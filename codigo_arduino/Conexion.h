@@ -22,23 +22,12 @@ class Conexion {
 
     int debug = false;
 
-    void _abortarConexion() {
-      _resetearMensajeBloqueante();
-
-      if (reconexion) {
-        estado = RECONNECTING;
-        establecerConexion();
-      }
-      else
-        estado = NOTCONNECTED;
-    }
-
     void _resetearMensajeBloqueante() {
       mensajeBloqueante = Mensaje();
     }
 
     void _log(String log) {
-      Serial.println("DEBUG: "+log);
+      if (debug) Serial.println("DEBUG: "+log);
     }
 
   public:
@@ -72,17 +61,29 @@ class Conexion {
       return estado;
     }
 
+    void abortarConexion() {
+      _resetearMensajeBloqueante();
+
+      if (reconexion) {
+        estado = RECONNECTING;
+        establecerConexion();
+      }
+      else
+        estado = NOTCONNECTED;
+    }
+    
     boolean keepAlive() {
       bool conexionViva = false;
       Mensaje respuesta = Mensaje();
 
       enviarMensaje(Mensaje(T_INFORMATION|T_BLOCKING, C_KEEPALIVE, "AWAITING RESPONSE"));
+      _log("keepAlive(): mensajeBloqueante: "+mensajeBloqueante.toString());
       if (esperarMensaje(&respuesta) == 0) {
         conexionViva = true;
       }
       else {
         conexionViva = false;
-        _abortarConexion();
+        abortarConexion();
       }
 
       return conexionViva;
@@ -119,6 +120,8 @@ class Conexion {
         mensaje->setIdentificador((cadena.substring(1,4)).toInt());
         mensaje->setMensaje(cadena.substring(4));
 
+        _log("recibirMensaje(): Received: "+cadena+"; Mensaje: "+mensaje->toString());
+
         if (mensajeBloqueante != Mensaje()) {
           _log("Comparing: "+mensaje->toString()+" and "+mensajeBloqueante.toString());
           if (mensaje->getTipo() == (T_ACK|T_NONBLOCKING) && mensaje->getIdentificador() == mensajeBloqueante.getIdentificador()) {
@@ -129,12 +132,14 @@ class Conexion {
             estadoRecepcion = 1;
           }
         }
+
+        if (mensaje->getTipo() == (T_INFORMATION|T_BLOCKING)) {
+          enviarMensaje(Mensaje(T_ACK|T_NONBLOCKING, mensaje->getIdentificador(), "RECEIVED"));          
+        }
       }
       else {
         estadoRecepcion = -1;
       }
-      
-      if (estadoRecepcion != -1) Serial.println("Received: "+mensaje->toString());
 
       return estadoRecepcion;
     }
