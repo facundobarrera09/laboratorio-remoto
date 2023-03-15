@@ -1,6 +1,8 @@
 #include "ArduinoJson.h"
+#include "Mensaje.h"
+#include "Conexion.h"
 
-#define CANTIDAD_MUESTRAS 500
+#define CANTIDAD_MUESTRAS 10
 #define MESSAGE_DELAY 500
 #define DELAY_RELES 2000
 
@@ -17,10 +19,11 @@ const boolean SIMULAR_VALORES = false;
 const int read_1 = 33; // voltage
 const int read_2 = 32; // corriente
 
-// Servidor
-const String PASSWORD = "CONNECT:1234";
-int estado_conexion = 0; // 0 - desconectado, 1 - esperando mensaje del servidor, 2 - enviando mediciones al servidor
-String mensaje = "";
+// Conexion con servidor
+#define MEDICIONES_KEEPALIVE 15
+
+#define C_DATA_VOLTAJE 201
+#define C_DATA_CORRIENTE 202
 
 // Json Config
 StaticJsonDocument<JSON_OBJECT_SIZE(24)> configDoc;
@@ -31,6 +34,7 @@ int simularCorriente(int x);
 
 void setup() {
   Serial.begin(115200);
+
   pinMode(rele_vsin, OUTPUT);
   pinMode(rele_r1, OUTPUT);
   pinMode(rele_c, OUTPUT);
@@ -41,62 +45,69 @@ void setup() {
 }
 
 void loop() {  
-  // Establecer conexion con servidor
-  if (estado_conexion == 0) {
-    while (Serial.available() < 1) {
-      Serial.println("1AWAITING_CONNECTION"); 
-      delay(MESSAGE_DELAY); 
+  Conexion conexion = Conexion();
+  Mensaje respuesta;
+
+  conexion.establecerConexion();
+  
+  if (conexion.getEstado() == CONNECTED) {
+    // Esperar configuracion
+    respuesta = Mensaje();
+    conexion.enviarMensaje(Mensaje(T_INFORMATION|T_BLOCKING, C_CONFIGINFORMATION, "AWAITING INFORMATION"));
+    
+    // Establecer configuracion   
+    if (conexion.esperarMensaje(&respuesta) == 0) {
+      setupConfig(respuesta.getMensaje());
     }
-    mensaje = Serial.readString();
-    if (mensaje == PASSWORD) {
-      Serial.println("0RECEIVED_CONNECTION");
-      estado_conexion = 1;
+    else {
+      conexion.abortarConexion();
     }
+
   }
 
-  // Manejar estados de la conexion
-  if (estado_conexion == 1){
-    while (Serial.available() < 1) { 
-      Serial.println("1AWAITING_CONFIG"); 
-      delay(MESSAGE_DELAY);
-    }
-    mensaje = Serial.readString();
-    Serial.println("0RECEIVED_CONFIG");
-    estado_conexion = 2;
-    
-    setupConfig(mensaje);
-  }
-
-  // Realizar mediciones y enviarlas al servidor
-  if (estado_conexion == 2) {
-    int voltaje[CANTIDAD_MUESTRAS] = {};
-    int corriente[CANTIDAD_MUESTRAS] = {};
-    
-    for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
-      if (SIMULAR_VALORES) {
-        voltaje[x] = simularVoltaje(x);
-        corriente[x] = simularCorriente(x);
+  while (conexion.getEstado() == CONNECTED) {
+    // Realizar mediciones y enviarlas al servidor
+    for (int mediciones = 0; mediciones < MEDICIONES_KEEPALIVE; mediciones++) {
+      int voltaje[CANTIDAD_MUESTRAS] = {};
+      int corriente[CANTIDAD_MUESTRAS] = {};
+      
+      for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
+        if (SIMULAR_VALORES) {
+          voltaje[x] = simularVoltaje(x);
+          corriente[x] = simularCorriente(x);
+        }
+        else {
+          voltaje[x] = analogRead(read_1);
+          corriente[x] = analogRead(read_2);
+        }
       }
-      else {
-        voltaje[x] = analogRead(read_1);
-        corriente[x] = analogRead(read_2);
+      
+      String datos = "";
+      for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
+        if (x != 0) datos += ",";
+        datos += String(voltaje[x]);
+      }
+      conexion.enviarMensaje(Mensaje(T_INFORMATION|T_NONBLOCKING, C_DATA_VOLTAJE, datos));
+      
+      datos = "";
+      for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
+        if (x != 0) datos += ",";
+        datos += String(corriente[x]);
+      }
+      conexion.enviarMensaje(Mensaje(T_INFORMATION|T_NONBLOCKING, C_DATA_CORRIENTE, datos));
+
+      if (conexion.hayMensajeDisponible()){
+        respuesta = Mensaje();
+        if (conexion.recibirMensaje(&respuesta) == 0) {
+          if (respuesta.getIdentificador() == C_CONFIGINFORMATION) {
+            setupConfig(respuesta.getMensaje());            
+          }
+        }
       }
     }
-    
-    Serial.print("2VOLTAGE:");
-    for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
-      if (x != 0) Serial.print(',');
-      Serial.print(voltaje[x]);
-    }
-    Serial.print("CURRENT:");
-    for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
-      if (x != 0) Serial.print(',');
-      Serial.print(corriente[x]);
-    }
-    Serial.println("");
 
-    if (Serial.available() > 0)
-      estado_conexion = 1;
+    // Verificar que la conexion siga viva
+    conexion.keepAlive();
   }
 }
 
