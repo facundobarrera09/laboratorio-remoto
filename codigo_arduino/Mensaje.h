@@ -1,10 +1,22 @@
 #pragma once
 
+// TYPES - left bit is Information (0) or ACK (1), and right bit is blocking (0) or nonblocking (1)
+#define T_INFORMATION 0
+#define T_ACK 1
+#define T_BLOCKING 0
+#define T_NONBLOCKING 2
+
+// IDENTIFIERS
+#define C_BEGINCONNECTION 100
+#define C_CONFIGINFORMATION 101
+#define C_KEEPALIVE 102
+#define C_DATA 200
+
 class Mensaje {
   private:
-    int tipo;
-    int identificador;
-    String mensaje;
+    int tipo = -1;
+    int identificador = -1;
+    String mensaje = "";
 
   public:
     Mensaje() {}
@@ -32,8 +44,16 @@ class Mensaje {
     void setMensaje(String mensaje) {
       this->mensaje = mensaje;
     }
+    
+    inline bool operator==(const Mensaje& x) {
+      if ((this->tipo == x.tipo) && (this->identificador == x.identificador) && (this->mensaje == x.mensaje))
+        return true;
+      else 
+        return false;
+    }
+    inline bool operator!=(const Mensaje& x) { return !(*this == x); }
 
     String toString() {
-      return tipo + identificador + mensaje;
+      return String(tipo) + String(identificador) + mensaje;
     }
 };

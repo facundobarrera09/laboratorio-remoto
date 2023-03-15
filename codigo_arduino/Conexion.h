@@ -1,53 +1,178 @@
 #pragma once
+
 #include "Mensaje.h"
 
-#define MAXKEEPALIVE 5000
-#define DELAYINICIO 500
+#define DEFAULTKEEPALIVE 4000
+#define INITIALDELAY 500
+#define KEEPALIVEDELAY 1000
+
+// CONNECTION STATES
+#define ERROR -1
+#define NOTCONNECTED 0
+#define CONNECTED 1
+#define RECONNECTING 2
 
 class Conexion {
   private:
-    int estado = 0;
-    int keepAliveMax = MAXKEEPALIVE;
+    int estado = NOTCONNECTED;
+    boolean reconexion = false;
+    int tiempoKeepAlive = DEFAULTKEEPALIVE;
+
+    Mensaje mensajeBloqueante;
+
+    int debug = false;
+
+    void _abortarConexion() {
+      _resetearMensajeBloqueante();
+
+      if (reconexion) {
+        estado = RECONNECTING;
+        establecerConexion();
+      }
+      else
+        estado = NOTCONNECTED;
+    }
+
+    void _resetearMensajeBloqueante() {
+      mensajeBloqueante = Mensaje();
+    }
+
+    void _log(String log) {
+      Serial.println("DEBUG: "+log);
+    }
 
   public:
-    Conexion(boolean iniciar) {
-      if (iniciar) {
-        iniciarConexion();
-      }
-    }
-    Conexion() : Conexion(false) {}
+    Conexion(boolean iniciar, boolean reconexion) {
+      this->reconexion = reconexion;
 
-    int iniciarConexion() {
-      if (estado == 0 || estado == 2) {
+      if (iniciar) {
+        establecerConexion();
+      }
+      _resetearMensajeBloqueante();
+    }
+    Conexion(boolean iniciar) : Conexion(iniciar, false) {}
+    Conexion() : Conexion(false, false) {}
+
+    int establecerConexion() {
+      if (estado == NOTCONNECTED || estado == RECONNECTING) {
         Mensaje respuesta = Mensaje();
-        while(recibirMensaje(&respuesta) == -1) {
-          enviarMensaje(Mensaje(1, 111, "AWAITING CONNECTION"));
-          delay(DELAYINICIO);
+        while(estado != CONNECTED){
+          while(recibirMensaje(&respuesta) != 0) {
+            enviarMensaje(Mensaje(T_INFORMATION|T_NONBLOCKING, C_BEGINCONNECTION, "AWAITING CONNECTION"));
+            delay(INITIALDELAY);
+          }
+          if (respuesta == Mensaje(T_INFORMATION|T_BLOCKING, C_BEGINCONNECTION, "ACCEPT CONNECTION")) {
+            estado = CONNECTED;
+          }
         }
-        Serial.println("CONEXION EXITOSA");
       }
       else { 
-        return -1;
+        return ERROR;
       }
       return estado;
     }
 
+    boolean keepAlive() {
+      bool conexionViva = false;
+      Mensaje respuesta = Mensaje();
+
+      enviarMensaje(Mensaje(T_INFORMATION|T_BLOCKING, C_KEEPALIVE, "AWAITING RESPONSE"));
+      if (esperarMensaje(&respuesta) == 0) {
+        conexionViva = true;
+      }
+      else {
+        conexionViva = false;
+        _abortarConexion();
+      }
+
+      return conexionViva;
+    }
+
     int enviarMensaje(Mensaje mensaje) {
-      Serial.println(mensaje.toString());
-      return 0;
+      int estadoEnvio = 0;
+
+      if (mensaje.getTipo() == T_INFORMATION|T_BLOCKING) { 
+        if (mensajeBloqueante == Mensaje()) {
+          mensajeBloqueante = mensaje;
+        }
+        else if (mensaje != mensajeBloqueante) {
+          estadoEnvio = -1;
+        }
+      }
+      
+      if (estadoEnvio == 0) Serial.println(mensaje.toString());
+
+      return estadoEnvio;
+    }
+
+    int reenviarUltimoMensaje() {
+      enviarMensaje(mensajeBloqueante);
     }
 
     int recibirMensaje(Mensaje *mensaje) {
-      if (Serial.available() < 1) { 
+      int estadoRecepcion = 0;
+    
+      if (hayMensajeDisponible()) { 
         String cadena = Serial.readString();
         
         mensaje->setTipo((cadena.substring(0,1)).toInt());
         mensaje->setIdentificador((cadena.substring(1,4)).toInt());
         mensaje->setMensaje(cadena.substring(4));
+
+        if (mensajeBloqueante != Mensaje()) {
+          _log("Comparing: "+mensaje->toString()+" and "+mensajeBloqueante.toString());
+          if (mensaje->getTipo() == (T_ACK|T_NONBLOCKING) && mensaje->getIdentificador() == mensajeBloqueante.getIdentificador()) {
+            _resetearMensajeBloqueante();
+            _log("Comparison was true");
+          }
+          else {
+            estadoRecepcion = 1;
+          }
+        }
       }
       else {
-        return -1;
+        estadoRecepcion = -1;
       }
-      return 0;
+      
+      if (estadoRecepcion != -1) Serial.println("Received: "+mensaje->toString());
+
+      return estadoRecepcion;
+    }
+
+    int esperarMensaje(Mensaje *mensaje, int tiempo) {
+      int estadoRecepcion = -1;
+
+      if (estado == CONNECTED){
+        do {
+          if (recibirMensaje(mensaje) != 0) {
+            delay((tiempo > 0) ? tiempo : 0);
+            tiempo -= INITIALDELAY;
+            reenviarUltimoMensaje();
+          }
+          else {
+            estadoRecepcion = 0;
+          }
+
+        } while (estadoRecepcion != 0 && tiempo > 0);
+      }
+      else
+        estadoRecepcion = -1;
+
+      return estadoRecepcion;
+    }
+    
+    int esperarMensaje(Mensaje *mensaje) {
+      return esperarMensaje(mensaje, this->tiempoKeepAlive);
+    }
+
+    int hayMensajeDisponible() {
+      if (Serial.available() > 0)
+        return true;
+      else
+        return false;
+    }
+
+    int getEstado() {
+      return this->estado;
     }
 };
