@@ -3,6 +3,7 @@
 #include "Mensaje.h"
 
 #define DEFAULTKEEPALIVE 4000
+#define LONGWAIT 10000
 #define INITIALDELAY 500
 #define KEEPALIVEDELAY 1000
 
@@ -18,7 +19,7 @@ class Conexion {
     boolean reconexion = false;
     int tiempoKeepAlive = DEFAULTKEEPALIVE;
 
-    Mensaje mensajeBloqueante;
+    Mensaje mensajeBloqueante, ultimoMensaje;
 
     int debug = false;
 
@@ -76,14 +77,16 @@ class Conexion {
       bool conexionViva = false;
       Mensaje respuesta = Mensaje();
 
-      enviarMensaje(Mensaje(T_INFORMATION|T_BLOCKING, C_KEEPALIVE, "AWAITING RESPONSE"));
-      _log("keepAlive(): mensajeBloqueante: "+mensajeBloqueante.toString());
-      if (esperarMensaje(&respuesta) == 0) {
-        conexionViva = true;
-      }
-      else {
-        conexionViva = false;
-        abortarConexion();
+      if (estado = CONNECTED) {
+        enviarMensaje(Mensaje(T_INFORMATION|T_BLOCKING, C_KEEPALIVE, "AWAITING RESPONSE"));
+        _log("keepAlive(): mensajeBloqueante: "+mensajeBloqueante.toString());
+        if (esperarMensaje(&respuesta) == 0) {
+          conexionViva = true;
+        }
+        else {
+          conexionViva = false;
+          abortarConexion();
+        }
       }
 
       return conexionViva;
@@ -101,30 +104,33 @@ class Conexion {
         }
       }
       
-      if (estadoEnvio == 0) Serial.println(mensaje.toString());
+      if (estadoEnvio == 0) {
+        Serial.println(mensaje.toString());
+        ultimoMensaje = mensaje;
+      }
 
       return estadoEnvio;
     }
 
     int reenviarUltimoMensaje() {
-      enviarMensaje(mensajeBloqueante);
+      enviarMensaje(ultimoMensaje);
     }
 
     int recibirMensaje(Mensaje *mensaje) {
       int estadoRecepcion = 0;
     
-      if (hayMensajeDisponible()) { 
-        String cadena = Serial.readString();
+      if (hayMensajeDisponible()) {
+        String cadena = Serial.readStringUntil('\n');
         
         mensaje->setTipo((cadena.substring(0,1)).toInt());
         mensaje->setIdentificador((cadena.substring(1,4)).toInt());
         mensaje->setMensaje(cadena.substring(4));
 
-        _log("recibirMensaje(): Received: "+cadena+"; Mensaje: "+mensaje->toString());
+        _log("recibirMensaje(): Received: "); _log(cadena); _log("Mensaje: "+mensaje->toString());
 
         if (mensajeBloqueante != Mensaje()) {
           _log("Comparing: "+mensaje->toString()+" and "+mensajeBloqueante.toString());
-          if (mensaje->getTipo() == (T_ACK|T_NONBLOCKING) && mensaje->getIdentificador() == mensajeBloqueante.getIdentificador()) {
+          if ((mensaje->getTipo() & T_ACK) == T_ACK && mensaje->getIdentificador() == mensajeBloqueante.getIdentificador()) {
             _resetearMensajeBloqueante();
             _log("Comparison was true");
           }
@@ -133,7 +139,7 @@ class Conexion {
           }
         }
 
-        if (mensaje->getTipo() == (T_INFORMATION|T_BLOCKING)) {
+        if ((mensaje->getTipo() & T_BLOCKING) == T_BLOCKING) {
           enviarMensaje(Mensaje(T_ACK|T_NONBLOCKING, mensaje->getIdentificador(), "RECEIVED"));          
         }
       }

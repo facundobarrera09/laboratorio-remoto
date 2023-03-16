@@ -25,6 +25,8 @@ const int read_2 = 32; // corriente
 #define C_DATA_VOLTAJE 201
 #define C_DATA_CORRIENTE 202
 
+Conexion conexion;
+
 // Json Config
 StaticJsonDocument<JSON_OBJECT_SIZE(24)> configDoc;
 
@@ -34,6 +36,8 @@ int simularCorriente(int x);
 
 void setup() {
   Serial.begin(115200);
+
+  conexion = Conexion();
 
   pinMode(rele_vsin, OUTPUT);
   pinMode(rele_r1, OUTPUT);
@@ -45,7 +49,6 @@ void setup() {
 }
 
 void loop() {  
-  Conexion conexion = Conexion();
   Mensaje respuesta;
 
   conexion.establecerConexion();
@@ -56,11 +59,11 @@ void loop() {
     conexion.enviarMensaje(Mensaje(T_INFORMATION|T_BLOCKING, C_CONFIGINFORMATION, "AWAITING INFORMATION"));
     
     // Establecer configuracion   
-    if (conexion.esperarMensaje(&respuesta) == 0) {
+    if (conexion.esperarMensaje(&respuesta, LONGWAIT) == 0) {
       setupConfig(respuesta.getMensaje());
     }
     else {
-      conexion.abortarConexion();
+      conexion.abortarConexion(); 
     }
 
   }
@@ -82,19 +85,18 @@ void loop() {
         }
       }
       
-      String datos = "";
+      String datos = "VOLTAGE:";
       for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
         if (x != 0) datos += ",";
         datos += String(voltaje[x]);
       }
-      conexion.enviarMensaje(Mensaje(T_INFORMATION|T_NONBLOCKING, C_DATA_VOLTAJE, datos));
-      
-      datos = "";
+      datos += "CURRENT:";
       for (int x = 0; x < CANTIDAD_MUESTRAS; x++) {
         if (x != 0) datos += ",";
         datos += String(corriente[x]);
       }
-      conexion.enviarMensaje(Mensaje(T_INFORMATION|T_NONBLOCKING, C_DATA_CORRIENTE, datos));
+      
+      conexion.enviarMensaje(Mensaje(T_INFORMATION|T_NONBLOCKING, C_DATA, datos));
 
       if (conexion.hayMensajeDisponible()){
         respuesta = Mensaje();
@@ -113,34 +115,32 @@ void loop() {
 
 void setupConfig(String incommingJson) {
   DeserializationError err = deserializeJson(configDoc, incommingJson);
+  boolean vsin = false, r1 = false, c = false, l = false, r2 = false;
+
   if (err) {
-    Serial.print("1");
-    Serial.print("deserializeJson() failed with code ");
-    Serial.println(err.f_str());
+    String error = "ERROR: deserializeJson() failed with code " + String(err.f_str()) + ", and payload: " + incommingJson;
+    conexion.enviarMensaje(Mensaje(T_INFORMATION|T_NONBLOCKING, C_CONFIGINFORMATION, error));
   }
   else {
-    Serial.print("0");
-    Serial.println("RECEIVED_VALID_CONFIG");
-    boolean vsin, r1, c, l, r2;
-    
     vsin = (boolean) configDoc["rele1"];
     r1 = (boolean) configDoc["rele2"];
     c = (boolean) configDoc["rele3"];
     l = (boolean) configDoc["rele4"];
     r2 = (boolean) configDoc["rele5"];
 
-    Serial.print("4: vsin=");
-    Serial.print(vsin);
-    Serial.print(", r1=");
-    Serial.print(r1);
-    Serial.print(", c=");
-    Serial.print(c);
-    Serial.print(", l=");
-    Serial.print(l);
-    Serial.print(", r2=");
-    Serial.println(r2);
-
-    if (vsin) {
+    //Serial.print("4: vsin=");
+    //Serial.print(vsin);
+    //Serial.print(", r1=");
+    //Serial.print(r1);
+    //Serial.print(", c=");
+    //Serial.print(c);
+    //Serial.print(", l=");
+    //Serial.print(l);
+    //Serial.print(", r2=");
+    //Serial.println(r2);
+  }
+  
+  if (vsin) {
       // Desconectar el circuito y esperar
       digitalWrite(rele_vsin, LOW);
       delay(DELAY_RELES);
@@ -158,7 +158,6 @@ void setupConfig(String incommingJson) {
     else {
       digitalWrite(rele_vsin, LOW);
     }
-  }
 }
 
 int simularVoltaje(int x) {

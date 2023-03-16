@@ -11,6 +11,7 @@
 #define C_CONFIGINFORMATION 101
 #define C_KEEPALIVE 102
 #define C_DATA 200
+#define C_ERROR 400
 
 class Mensaje {
   private:
