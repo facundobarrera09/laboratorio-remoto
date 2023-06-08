@@ -14,7 +14,7 @@ class DataManager {
     start() {
         if (!this.executingManager) {
             this.executingManager = true;
-            this.emitter.on('new_data', (data) => {this.broadcastData(this, data)});
+            // this.emitter.on('new_data', (data) => {this.broadcastData(this, data)});
         }
     }
 
@@ -45,8 +45,16 @@ class DataManager {
 
     broadcastData(manager, data) {
         if (manager.emitters) {
-            manager.emitters.forEach(e => e.emit('measurement data', data));
+            manager.emitters.forEach(e => e.to('clients').emit('measurement data', data));
         }
+    }
+
+    on(event, callback) {
+        this.emitter.on(event, callback);
+    }
+
+    removeListener(event, func) {
+        this.emitter.removeListener(event, func)
     }
 };
 

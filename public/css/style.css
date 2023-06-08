@@ -7,7 +7,7 @@ body {
   display: flex;
   flex-direction: column;
 
-  background-color: #f5f4ef;
+  background-color: #f2f2f2 !important;
 }
 
 a, label, button {
@@ -180,4 +180,63 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+
+/* Customize the appearance of the loading container */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Customize the appearance of the spinner */
+.spinner {
+  width: 4rem;
+  height: 4rem;
+  border: 0.3rem solid #f3f3f3;
+  border-top: 0.3rem solid #3498db;
+  border-radius: 50%;
+  animation: spin 2s linear infinite;
+}
+
+/* Define the spin animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.cross {
+  width: 4rem;
+  height: 4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: cross-spin 2s forwards;
+}
+
+.cross::before, .cross::after {
+  content: "";
+  position: absolute;
+  width: 15%;
+  height: 90%;
+  background-color: red;
+  transform-origin: center center;
+}
+
+.cross::before {
+  transform: rotate(45deg);
+}
+
+.cross::after {
+  transform: rotate(-45deg);
+}
+
+@keyframes cross-spin {
+  0% {
+      transform: rotate(0deg);
+  }
+  
+  100% {
+      transform: rotate(360deg);
+  }
 }

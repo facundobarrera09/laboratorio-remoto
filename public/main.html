@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Laboratorio Remoto - CIASUR</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="./css/style.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    </head>
+
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary ">
+            <div class="container">
+                <a class="navbar-brand" href="#"><img  class="imgLogo mr-3" src="./img/logoUtn.png" alt="logo"><span>Laboratorio Remoto - CIASUR</span></a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+                    aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="#">Principal</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Información</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <main class="d-flex">
+
+            <div id="status" class="container">
+                <div class="container-fluid d-flex align-items-center" style="height: 90%;">
+                    <div class="col-12 mx-auto">
+                        <div class="d-flex justify-content-center align-items-center col-lg-8 col-12 mx-auto card" style="height: 40vh;">
+                            <h1 id="title" class="text-center mb-5 mx-4">Cargando laboratorio...</h1>
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                            <div class="cross" hidden></div>
+                            <h3 id="redirect" hidden><a id="gestor-link" href="http://localhost:3001/">Volver al gestor de turnos</a></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="main" class="container" hidden>
+                <div class="container card flex-grow-1 d-flex flex-column justify-content-center align-items-center my-3 p-5">
+    
+                    <!-- GRAFICA Y WEBCAM -->
+                    <div class="row mb-5">
+    
+                        <div class="col col-lg-7 d-flex justify-content-center align-items-center">
+                            <div class="container">
+    
+                                <!-- CHART Y CONTAINER -->
+                                <div class="row">
+                                    <div class="chart-container col-9">
+                                        <div id="chart_div"></div>
+                                    </div> 
+                                    <div class="col-3">
+                                        <div class="eje-cartesiano" id="eje"></div>    
+                                    </div>
+                                </div>
+    
+                                <!-- VALORES -->
+                                <div class="row m-3 mb-0">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Voltaje</th>
+                                                <th scope="col">Intensidad</th>
+                                                <th scope="col">Desfasaje</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td id="valores-voltaje"></td>
+                                                <td id="valores-corriente"></td>
+                                                <td id="valores-angulo"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+    
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Potencia activa</th>
+                                                <th scope="col">Potencia reactiva</th>
+                                                <th scope="col">Factor de potencia</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td id="valores-potencia-activa"></td>
+                                                <td id="valores-potencia-reactiva"></td>
+                                                <td id="valores-factor-potencia"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+    
+                            </div>
+                        </div>
+    
+                        <!-- WEBCAM -->
+                        <div class="col col-lg-5 d-flex justify-content-center align-items-center">
+                            <div class="d-block">
+                                <div class="card">
+                                    <img class="card-img-top" src="" id="stream" alt="Card image cap">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Video en vivo</h5>
+                                    </div>
+                                </div>
+                                <!-- <img src="" alt="" id="stream" style="width: 380px;"> -->
+                            </div>
+                        </div>
+    
+                    </div>
+    
+                    <!-- CIRCUITO Y FORMULARIO -->
+                    <div class="row">
+                    
+                        <!-- IMAGEN DEL CIRCUITO -->
+                        <div class="col col-lg-6 d-flex justify-content-center align-items-center">
+                            <img src="./img/Ciurcuito Pag Web.png" class="imgCircuito" alt="Circuito">
+                            
+                        </div>
+    
+                        <!-- FORMULARIO -->
+                        <div class="col col-lg-6">
+                            <form action="#" id="config-form" name="config-form">
+                                <div class="container">
+                                    <ul class="list-group">
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <div class="col form-check form-switch">
+                                                <input class="form-check-input"  name="rele1" value="rele1" type="checkbox" id="rele1 flexSwitchCheckChecked" checked>
+                                                <label for="rele1">Switch 1</label >
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <div class="col form-check form-switch">
+                                                <input class="form-check-input"  name="rele2" value="rele2" type="checkbox" id="rele2 flexSwitchCheckChecked" checked>
+                                                <label for="rele1">Switch 2</label >
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <div class="col form-check form-switch">
+                                                <input class="form-check-input"  name="rele3" value="rele3" type="checkbox" id="rele3 flexSwitchCheckChecked" checked>
+                                                <label for="rele1">Switch 3</label>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <div class="col form-check form-switch">
+                                                <input class="form-check-input"  name="rele4" value="rele4" type="checkbox" id="rele4 flexSwitchCheckChecked" checked>
+                                                <label for="rele1">Switch 4</label >
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <div class="col form-check form-switch">
+                                                <input class="form-check-input"  name="rele5" value="rele5" type="checkbox" id="rele5 flexSwitchCheckChecked" checked>
+                                                <label for="rele1">Switch 5</label >
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between p-0">
+                                            <button type="button" id="submit-form" class="btn btn-primary p-2" style="width: 100%; border-radius: 0;">Confirmar cambios</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </form>
+                        </div>
+    
+                    </div>
+    
+                </div>
+            </div>
+        </main>
+        
+        <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+        <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+        
+        <script src="./jquery/jquery-3.6.1.min.js"></script>
+        <script src="./js/script.js"></script>
+    </body>
+  
+</html>

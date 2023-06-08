@@ -12,3 +12,11 @@ rele5 = false
 
 [Webcam]
 password = "1234"
+
+[Client]
+id = "laboratorio.remoto"
+secret = "secreto"
+redirectUri = "http://127.0.0.1:3000/main.html"
+
+[Session]
+secret = "ananashe"

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Laboratorio Remoto - CIASUR</title>
+    <title>Acceso denegado</title>
     <link rel="stylesheet" href="./css/style.css">
     <!-- Include Bootstrap CSS file here -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
@@ -30,11 +30,9 @@
     <div class="container-fluid d-flex align-items-center" style="height: 100vh;">
         <div class="col-12 mx-auto">
             <div class="d-flex justify-content-center align-items-center col-lg-6 col-12 mx-auto card" style="height: 40vh;">
-                <h1 id="title" class="text-center mb-5 mx-4">Cargando laboratorio...</h1>
-                <div class="loading">
-                    <div class="spinner"></div>
-                </div>
-                <div class="cross" hidden></div>
+                <h1 id="title" class="text-center mb-3 mx-4">Se denego el acceso al laboratorio</h1>
+                <div class="cross mb-3"></div>
+                <h3 id="redirect"><a id="gestor-link" href="http://localhost:3001/">Volver al gestor de turnos</a></h3>
             </div>
         </div>
     </div>
@@ -43,7 +41,5 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
     <script src="./jquery/jquery-3.6.1.min.js"></script>
-    <script src="./js/connect.js"></script>
-    <script src="./js/spinner.js"></script>
 </body>
 </html>
