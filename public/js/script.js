@@ -1,4 +1,5 @@
 const identifier = localStorage.getItem('identifier')
+
 if (!identifier) window.location.assign('/')
 
 let socket = io({

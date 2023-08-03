@@ -18,7 +18,9 @@ const createSocketAccessTimes = require('./utils/createSocketAccessTimes')
 const { Server } = require('socket.io');
 const { PortConnection } = require('./app/PortConnection');
 const { PetitionManager } = require('./app/PetitionManager');
+const { Petition } = require('./app/Petition');
 const { DataManager } = require('./app/DataManager');
+const { ControllerConfig } = require('./app/ControllerConfig')
 
 const app = express();
 
@@ -31,7 +33,6 @@ app.use(cors())
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // support encoded bodies
 app.use(session({ secret: config.get('Session.secret'), resave: false, saveUninitialized: false }))
-
 
 // TODO: asegurarse que si el usuario cierra la cuenta en el gestor ya no pueda acceder al laboratorio
 app.get('/main.html', async (req, res, next) => {
@@ -48,6 +49,7 @@ app.get('/main.html', async (req, res, next) => {
             return res.redirect('/denied.html')
         }
         else if (!params.code) {
+            logger.info('redirecting user to http://localhost:3001/authorization')
             return res.redirect(`http://localhost:3001/authorization?response_type=code&client_id=${encodeURIComponent(config.get('Client.id'))}&redirect_uri=${encodeURIComponent(config.get('Client.redirectUri'))}&scope=read&state=1234zyx`)
         }
         else {
@@ -79,7 +81,7 @@ app.get('/main.html', async (req, res, next) => {
 
         const userAccess = getUserAccess(laboratory, userTurns)
         req.session.userAccess = userAccess
-
+        
         const client = getClientById(req.session.identifier)
         client.access = userAccess
         
@@ -93,8 +95,8 @@ app.get('/webcam', (req, res) => {
     res.sendFile(__dirname+'/public/webcam.html');
 });
 
-app.use('/api/clients', clientsRouter)
 app.use(express.static('public'))
+app.use('/api/clients', clientsRouter)
 
 const server = app.listen(app.get('port'), () => {
     console.log('Server on port ', app.get('port'));
@@ -106,17 +108,17 @@ dataManager.start();
 
 // SerialPort
 
-const portConnection = new PortConnection(config.get('SerialPort.port'), config.get('SerialPort.baudrate'));
-portConnection.connect();
+// const portConnection = new PortConnection(config.get('SerialPort.port'), config.get('SerialPort.baudrate'));
+// portConnection.connect();
 
 // PetitionManager
 
-const petitionManager = new PetitionManager(portConnection);
-petitionManager.start();
+// const petitionManager = new PetitionManager(portConnection);
+// petitionManager.start();
 
 // Socket.io Server
 
-const io = new Server(server);
+const io = new Server(server, { allowEIO3: true });
 
 io.use((socket, next) => {
     const type = socket.handshake.query.type
@@ -132,6 +134,14 @@ io.use((socket, next) => {
                 return next(new Error('missing identifier'))
             else if (!getClientById(identifier)) 
                 return next(new Error('client not found'))
+        }
+        if (type === 'esp') {
+            if (socket.handshake.headers.authorization !== 'Bearer valid token') {
+                console.log(socket.handshake.headers.authorization)
+                socket.emit('connection:error', 'unauthorized');
+                socket.disconnect()
+                return next(new Error('unauthorized'))
+            }
         }
         next()
     }
@@ -158,12 +168,27 @@ io.on('connection', (socket) => {
         socket.on('petition', (petition_data, callback) => {
             console.log('New petition from ', socket.handshake.address,': ', petition_data);
             let petition = new Petition(socket.handshake.address, petition_data);
-            petitionManager.addPetitionToQueue(petition)// derivar peticion al gestor de peticiones
+            // petitionManager.addPetitionToQueue(petition)// derivar peticion al gestor de peticiones
             callback(10); // retornar la posicion de la peticion en la cola
         });
     }
     else if (socket.handshake.query.type === 'esp') {
         socket.join('esp')
+
+        console.log('auth data:', socket.handshake)
+
+        socket.on('config:get', () => {
+            const espConfig = new ControllerConfig(config.get("SerialPort.config"))
+            socket.emit('config:set', JSON.stringify(espConfig))
+        })
+
+        socket.on('config:error', (data) => {
+            console.log('error while configuring esp:', data.error)
+        })
+
+        socket.on('meassurement_data:post', (data) => {
+            dataManager.insertData(data);
+        })
     }
     else if (socket.handshake.query.type === 'webcam') {
         socket.on('start stream', (data, callback) => {
@@ -185,11 +210,11 @@ io.on('connection', (socket) => {
 
 });
 
-portConnection.on('new_data', (data) => {
-    dataManager.insertData(data);
-});
+// portConnection.on('new_data', (data) => {
+//     dataManager.insertData(data);
+// });
 
-simulateData();
+// simulateData();
 async function simulateData() {
     let i = 0;
     let increment = true;

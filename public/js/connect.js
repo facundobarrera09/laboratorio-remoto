@@ -16,6 +16,7 @@ if (!identifier) {
         success: (response) => {
             // save user data
             localStorage.setItem('identifier', response.identifier)
+            console.log('new identifier:',response.identifier)
 
             // redirect user to new page
             window.location.replace('/main.html')
@@ -33,6 +34,8 @@ else {
             identifier
         }),
         success: (response) => {
+            console.log('identifier is valid')
+
             if (response.valid)
                 window.location.replace('/main.html')
             else {
