@@ -3,6 +3,15 @@ const { getCurrentTurn, getTurnTime } = require('./getCurrentTurn')
 module.exports = (laboratory, userTurns) => {
     const access = []
 
+    if (process.env.ALLOW_ALL === 'true') {
+        access.push({
+            start: new Date(0),
+            end: new Date(10000000000000)
+        })
+
+        return access
+    }
+
     const today = new Date()
     today.setHours(0,0,0,0)
 

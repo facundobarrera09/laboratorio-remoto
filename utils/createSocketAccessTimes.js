@@ -1,6 +1,16 @@
 const logger = require('./logger')
 
 module.exports = (socket, client, dataManager) => {
+    if (process.env.ALLOW_ALL === 'true') {
+        logger.info('start sending data')
+        socket.join('clients')
+        socket.emit('access:granted')
+        dataManager.on('new_data', (data) => {
+            socket.emit('measurement data', data)
+        })
+        return
+    }
+
     const now = new Date()
 
     for (let access of client.access) {

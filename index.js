@@ -36,24 +36,28 @@ app.use(session({ secret: config.get('Session.secret'), resave: false, saveUnini
 
 // TODO: asegurarse que si el usuario cierra la cuenta en el gestor ya no pueda acceder al laboratorio
 app.get('/main.html', async (req, res, next) => {
+
+    if (process.env.ALLOW_ALL === 'true')
+        return next()
+
     const params = req.query
 
     logger.debug('accessToken:', req.session.accessToken)
     logger.debug('params:', params)
 
-    if (!req.session.identifier) return res.redirect('/')
+    if (!req.session.identifier && process.env.ALLOW_ALL !== 'true') return res.redirect('/')
 
     if (!req.session.accessToken) {
         if (params.error) {
             logger.error(params.error, params.error_description)
             return res.redirect('/denied.html')
         }
-        else if (!params.code) {
+        else if (!params.code && process.env.ALLOW_ALL !== 'true') {
             logger.info('redirecting user to http://localhost:3001/authorization')
             return res.redirect(`http://localhost:3001/authorization?response_type=code&client_id=${encodeURIComponent(config.get('Client.id'))}&redirect_uri=${encodeURIComponent(config.get('Client.redirectUri'))}&scope=read&state=1234zyx`)
         }
         else {
-            const token = await getToken(params.code)
+            const token = (process.env.ALLOW_ALL !== 'true') ? await getToken(params.code) : 'valid'
             if (token) {
                 logger.info('client provided authorization')
                 req.session.accessToken = token
@@ -65,25 +69,29 @@ app.get('/main.html', async (req, res, next) => {
         }
     }
     else {
-        const laboratory = await getLaboratoryInfo(req.session.accessToken)
+        let laboratory = undefined, userTurns = undefined
 
-        if (!laboratory) {
-            req.session.accessToken = undefined
-            res.redirect('/main.html')
+        if (process.env.ALLOW_ALL !== 'true') {
+            laboratory = await getLaboratoryInfo(req.session.accessToken)
+    
+            if (!laboratory) {
+                req.session.accessToken = undefined
+                res.redirect('/main.html')
+            }
+    
+            userTurns = await getUserTurns(req.session.accessToken, laboratory)
+    
+            if (!userTurns) {
+                req.session.accessToken = undefined
+                res.redirect('/main.html')
+            }
+            
+            const userAccess = getUserAccess(laboratory, userTurns)
+            req.session.userAccess = userAccess
+            
+            const client = getClientById(req.session.identifier)
+            client.access = userAccess
         }
-
-        const userTurns = await getUserTurns(req.session.accessToken, laboratory)
-
-        if (!userTurns) {
-            req.session.accessToken = undefined
-            res.redirect('/main.html')
-        }
-
-        const userAccess = getUserAccess(laboratory, userTurns)
-        req.session.userAccess = userAccess
-        
-        const client = getClientById(req.session.identifier)
-        client.access = userAccess
         
         next()
     }
@@ -153,15 +161,21 @@ io.on('connection', (socket) => {
     
     if (socket.handshake.query.type === 'client') {
         const client = getClientById(socket.handshake.query.identifier)
+        console.log(client)
 
-        if (!client.access) return socket.disconnect()
-        
-        if (client.access.length === 0) {
-            socket.emit('access:denied')
-            socket.disconnect()
+        if (process.env.ALLOW_ALL !== 'true') {
+            if (!client.access) return socket.disconnect()
+            
+            if (client.access.length === 0) {
+                socket.emit('access:denied')
+                socket.disconnect()
+            }
+            else {
+                socket.emit('access:data', client.access)
+                createSocketAccessTimes(socket, client, dataManager)
+            }
         }
         else {
-            socket.emit('access:data', client.access)
             createSocketAccessTimes(socket, client, dataManager)
         }
         
@@ -214,7 +228,7 @@ io.on('connection', (socket) => {
 //     dataManager.insertData(data);
 // });
 
-// simulateData();
+simulateData();
 async function simulateData() {
     let i = 0;
     let increment = true;
